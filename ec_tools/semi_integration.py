@@ -48,14 +48,14 @@ def semi_integration(y, q=-0.5, delta_x=1, c1=8, c2=2):
     TEST:
     >>> from scipy.integrate import cumulative_trapezoid
     >>> x = np.linspace(0,1000, 1001)
-    >>> Δx = x[1] - x[0]
+    >>> delta_x = x[1] - x[0]
     >>> y = np.array([1]*1001)
-    >>> np.allclose(semi_integration(semi_integration(y, delta_x=Δx), Δx=Δx), cumulative_trapezoid(y,x,initial=0), rtol=2.5e-03)
+    >>> np.allclose(semi_integration(semi_integration(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=2.5e-03)
     True
     >>> x = np.linspace(0,1000, 10001)
-    >>> Δx = x[1] - x[0]
+    >>> delta_x = x[1] - x[0]
     >>> y = np.array([1]*10001)
-    >>> np.allclose(semi_integration(semi_integration(y, delta_x=Δx), Δx=Δx), cumulative_trapezoid(y,x,initial=0), rtol=5e-03)
+    >>> np.allclose(semi_integration(semi_integration(y, delta_x=delta_x), delta_x=delta_x), cumulative_trapezoid(y,x,initial=0), rtol=5e-03)
     True
     """
     N = y.size
