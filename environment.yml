@@ -1,10 +1,11 @@
-name: python
+name: ec-tools
 channels:
   - conda-forge
   - defaults
 dependencies:
   - black
   - isort
+  - maturin>=0.13,<0.14
   - numpy
   - pip
   - pylint

@@ -1,7 +1,7 @@
 # inspired by the pylint repo
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=0.13,<0.14"]
+build-backend = "maturin"
 
 [project]
 name = "ec-tools"
