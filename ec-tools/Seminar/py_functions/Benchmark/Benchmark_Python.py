@@ -24,7 +24,7 @@ N_list = [1000,2500 ,5000 ,7500,10000,12500,15000,20000]
 FILENAME = "results/Py_Benchmark_Results" 
 
 # Define if csv export is desired
-csv_export = True
+csv_export = False
 
 #--------------------------------------
 # Fast Riemann-Liouville transformation

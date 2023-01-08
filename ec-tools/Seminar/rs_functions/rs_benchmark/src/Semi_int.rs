@@ -9,7 +9,7 @@ use num_traits::pow;
 // G1 Gruenwald Semi-Integration and Semi-Differentiation
 // on base from Oldham: Electrochemical Science and Technology, 2012
 #[allow(non_snake_case)]
-pub fn G1(t: &Array1<f64>, I: &Array1<f64>) -> Array1<f64> {
+pub fn G1(I: &Array1<f64>,t: &Array1<f64>) -> Array1<f64> {
 
     // (equidistant) time step
     let delta = t[1]-t[0];
@@ -38,7 +38,7 @@ pub fn G1(t: &Array1<f64>, I: &Array1<f64>) -> Array1<f64> {
 // R1 Riemann and Liouville Semi-Integration and Semi-Differentiation
 // on base from Oldham: Electrochemical Science and Technology, 2012
 #[allow(non_snake_case)]
-pub fn R1(t: &Array1<f64>, I: &Array1<f64>) -> Array1<f64> {
+pub fn R1(I: &Array1<f64>,t: &Array1<f64>) -> Array1<f64> {
 
     let myPi = PI as f64;
 
