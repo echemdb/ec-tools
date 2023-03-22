@@ -24,7 +24,7 @@ You can instead also install the latest unreleased version of the ec-tools
 from our [GitHub Repository](https://github.com/echemdb/ec-tools) with
 
 ```sh
-pip install git+https://github.com/echemdb/ec-tools@master
+pip install git+https://github.com/echemdb/ec-tools@main
 ```
 
 
