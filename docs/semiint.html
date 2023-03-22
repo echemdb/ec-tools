@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semi Integration and Differentiation &mdash; ec-tools 0.0.1 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            ec-tools
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Semi Integration and Differentiation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-ec_tools.semi_integration">Fundamentals</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gruenwald-algorithms">Gruenwald Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#riemann-and-liouville-algorithms">Riemann and Liouville Algorithms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fast-riemann">Fast Riemann</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-ec_tools.semi_integration.semi_integration">Call Algorithms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#gruenwald-algorithm">Gruenwald Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#riemann-algorithm">Riemann Algorithm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fast-riemann-algorithm">Fast Riemann Algorithm</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-test">Performance Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">ec-tools</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Semi Integration and Differentiation</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/echemdb/ec-tools/blob/master/doc/semiint.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="semi-integration-and-differentiation">
+<h1>Semi Integration and Differentiation<a class="headerlink" href="#semi-integration-and-differentiation" title="Permalink to this heading"></a></h1>
+<p>The following introduction of the fundamentals is (partly) taken from Oldham’s good explanations in [1].</p>
+<section id="module-ec_tools.semi_integration">
+<span id="fundamentals"></span><h2>Fundamentals<a class="headerlink" href="#module-ec_tools.semi_integration" title="Permalink to this heading"></a></h2>
+<p>The differentiation and the integration are common mathematical operations. 
+The differentiation of an arbitrary function is often expressed by <span class="math notranslate nohighlight">\(\frac{d}{dt} f(x)\)</span>.
+Interestingly, the integration can also be expressed in a similar way:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau\)</span></p>
+<p>Therefore, these operations can be displayed in a more general way by:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau\)</span></p>
+<p>With:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(v= 1\)</span>: Differentiation</p></li>
+<li><p><span class="math notranslate nohighlight">\(v=-1\)</span>: Integration</p></li>
+</ul>
+<p>Let’s now introduce the so-called semi-operators. For <span class="math notranslate nohighlight">\(v=1/2\)</span> we have the seimi differentiation and
+(more interestingly for us) with <span class="math notranslate nohighlight">\(v=-1/2\)</span> the seimi integration. 
+The following picture visualize the idea of the semi integration and the semi differentiation.</p>
+<a class="reference internal image-reference" href="_images/semidif.png"><img alt="Image " src="_images/semidif.png" style="width: 600px;" /></a>
+<p>The figure shows, that a semi integration of a peak function (bottom left) results in a hybrid function (top) and 
+by performing another semi integration it brings a wave function (bottom right), which is equal to 
+perform a “full” integration of the peak function. The opposide direction is similar, 
+expect that a semi differentiation, respectively a “full” differentiation is performed instead.</p>
+<p><strong>Semi Integration Methods</strong></p>
+<p>Now we introduce some methods to apply the semi integration, resp. differentiation. 
+These computations needs generally discrete values, i.e. the function graph (like above) has to be seperated into discrete finite values:</p>
+<p><span class="math notranslate nohighlight">\(f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)\)</span></p>
+<p>Here we assume that the step size <span class="math notranslate nohighlight">\(\delta\)</span> is equidistant, meaning for a fixed set of x-Values N:</p>
+<p><span class="math notranslate nohighlight">\(\delta = \frac{x_N}{N}\)</span></p>
+<p>The following algorithms (Gruenwald and Riemann &amp; Liouville) are taken from Oldham in [1] and the fast Riemann from Pajkossy et. al. in [2].</p>
+<section id="gruenwald-algorithms">
+<h3>Gruenwald Algorithms<a class="headerlink" href="#gruenwald-algorithms" title="Permalink to this heading"></a></h3>
+<p>One sort of semi integration was introduced by Gruenwald [3] and 
+Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm called G1 algorithm.</p>
+<p>It can be generally expressed by taking the sum of the discrete function values multiplied with weights <span class="math notranslate nohighlight">\(w_i\)</span> 
+and then divided by the stepsize:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)\)</span></p>
+<p>The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
+<strong>Note</strong>, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].</p>
+<p>The weight can be expressed on different ways, often the single weights <span class="math notranslate nohighlight">\(w_i\)</span> depends on their predecessor <span class="math notranslate nohighlight">\(w_{i-1}\)</span>. 
+As the factorial expression could lead to an overflow, this algorithm can be simplified.</p>
+<p>The <strong>Gruenwald G1 semi integration algorithm</strong> is defined as follows:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)\)</span></p>
+<p>Which can be also displayed in reverse summation to allow an implementation:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)\)</span></p>
+<p>With:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(w_0 = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(w_n = \frac{(n-0.5)w_{n-1}}{n} = (1-\frac{0.5}{n})w_{n-1}\)</span></p></li>
+</ul>
+<p>The previous definition can also be applied as  <strong>Gruenwald G1 semi differentiation algorithm</strong> with some changes:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)\)</span></p>
+<p>With:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(w_0 = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(w_n = \frac{(n-1.5)w_{n-1}}{n}\)</span></p></li>
+</ul>
+</section>
+<section id="riemann-and-liouville-algorithms">
+<h3>Riemann and Liouville Algorithms<a class="headerlink" href="#riemann-and-liouville-algorithms" title="Permalink to this heading"></a></h3>
+<p>Another sort to determine the semi integral was introduced by Riemann and Liouville [4] and 
+described by Oldham in [1] as R1 algorithm in his web ressource 1244. 
+These sort of algorithms are mainly straightforward general-purpose algorithms.</p>
+<p>The algorithm (from Web1242) for the <strong>R1 semi integration</strong> is:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{-1/2}}{dt^{-1/2}}f(t)=\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.\)</span>
+<span class="math notranslate nohighlight">\(\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]\)</span></p>
+<p>The R1 algorithms are not usable for application to currents that arise from potential steps or leaps [1], as:</p>
+<p>1. The large current at t=0, immediately following the step is impossible to measure accurately and even if it would be possible,it is likely to be largely composed of a chemically uninteresting nonfaradaic component. But the algorithm still require a value of f(0).</p>
+<p>2. The algorithm is based on the assumption that f(t) can be treated as an assemblage of linear segments, 
+whereas faradaic currents arising from a potential step and are decidedly nonlinear with time.</p>
+<p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span></p>
+<p><span class="math notranslate nohighlight">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span>
+<span class="math notranslate nohighlight">\(\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
+<p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
+<p><span class="math notranslate nohighlight">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span>
+<span class="math notranslate nohighlight">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span> 
+<span class="math notranslate nohighlight">\(\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
+</section>
+<section id="fast-riemann">
+<h3>Fast Riemann<a class="headerlink" href="#fast-riemann" title="Permalink to this heading"></a></h3>
+<p>The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
+Its big advantage is, that the computation time increases only linearly with the number of points (N). 
+Here it is necessary to define some input variables (beside the t &amp; I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
+<span class="math notranslate nohighlight">\(\Delta_t\)</span> defines the constant time intervall (i.e. <span class="math notranslate nohighlight">\(t_2 - t_1\)</span>) and <span class="math notranslate nohighlight">\(c_1, c_2\)</span> are constant values,
+which we set by default to <span class="math notranslate nohighlight">\(c_1=8, c_2=2\)</span> (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:</p>
+<p><strong>Input</strong> 
+<span class="math notranslate nohighlight">\(q, N, \Delta_t, c_1, c_2, I\)</span></p>
+<p><span class="math notranslate nohighlight">\(t_0 = \Delta_t N^{1/2}\)</span></p>
+<p><span class="math notranslate nohighlight">\(a_0 = \sin(\pi q)/(\pi qt_0^q)\)</span></p>
+<p><strong>For</strong> <span class="math notranslate nohighlight">\(i = 0,2c_1c_2\)</span></p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(j = i-c_1c_2\)</span></p>
+<p><span class="math notranslate nohighlight">\(a_j = (a_0/c_2)\exp(j/c_2)\)</span></p>
+<p><span class="math notranslate nohighlight">\(t_j = t_0 \exp(-j/qc_2)\)</span></p>
+<p><span class="math notranslate nohighlight">\(w_1(i) = t_j / (\Delta_t + t_j)\)</span></p>
+<p><span class="math notranslate nohighlight">\(w_2(i) = a_j(1-w_1(i))\)</span></p>
+<p><span class="math notranslate nohighlight">\(s(i) = 0\)</span></p>
+</div></blockquote>
+<p><strong>For</strong> <span class="math notranslate nohighlight">\(k=1,N\)</span></p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(R(k)=0\)</span></p>
+<p><strong>For</strong> <span class="math notranslate nohighlight">\(i=0,2c_1c_2\)</span></p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(s(i)= s(i)w_1(i) + I(k)w_2(i)\)</span></p>
+<p><span class="math notranslate nohighlight">\(R(k) = R(k) + s(i)\)</span></p>
+</div></blockquote>
+</div></blockquote>
+<p>Here, <span class="math notranslate nohighlight">\(R\)</span> represents the calculated semi integral, i.e. <span class="math notranslate nohighlight">\(R \approx \frac{d^{v}}{dt^{v}} I(t)\)</span>.</p>
+</section>
+</section>
+<section id="module-ec_tools.semi_integration.semi_integration">
+<span id="call-algorithms"></span><h2>Call Algorithms<a class="headerlink" href="#module-ec_tools.semi_integration.semi_integration" title="Permalink to this heading"></a></h2>
+<p>To perform a semi integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) or semi differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
+on given data (<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code> ) with speed up by transonic (with numba or pythran backend) or without simply using python
+different methods are implemented.</p>
+<p>Available algorithms (<code class="docutils literal notranslate"><span class="pre">alg</span></code> ):</p>
+<p><code class="docutils literal notranslate"><span class="pre">frlt</span></code>: Fast Test Riemann-Liouville transformation</p>
+<p><code class="docutils literal notranslate"><span class="pre">g1</span></code>: Gruenwald</p>
+<p><code class="docutils literal notranslate"><span class="pre">r1</span></code>: Riemann and Liouville</p>
+<p>Available settings (<code class="docutils literal notranslate"><span class="pre">transonic_backend</span></code> ):</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span></code>: Python implementation</p>
+<p><code class="docutils literal notranslate"><span class="pre">numba</span></code>: Numba package with jit(just in time)</p>
+<p><code class="docutils literal notranslate"><span class="pre">pythran</span></code>: Transonic package with numba backend</p>
+<p>The generalized <code class="docutils literal notranslate"><span class="pre">semi_integration</span></code> function can be imported and executed by:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>semi_integration
+semi_integration<span class="o">(</span>I,<span class="w"> </span>t,<span class="w"> </span>alg,<span class="w"> </span>transonic_backend<span class="o">)</span>
+</pre></div>
+</div>
+<p>Here, the implemented algorithms can be selected by the alg flag (see above) or</p>
+<p>the algorithms can be imported and executed individually (listed below).
+Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the nice <code class="docutils literal notranslate"><span class="pre">transonic</span></code> library has been build in.</p>
+<span class="target" id="module-ec_tools.semi_integration.gruenwald"></span><section id="gruenwald-algorithm">
+<h3>Gruenwald Algorithm<a class="headerlink" href="#gruenwald-algorithm" title="Permalink to this heading"></a></h3>
+<p>Implementation of the Gruenwald algorithm for
+semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
+based on Oldham: [1]</p>
+<p>EXAMPLES:</p>
+<p>Simple examples to compare the alg by a “double” semi-integration (i.e. resulting in a normal integration)
+with a numerical full integration from scipy. First one with linear graph for y:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">delta_x</span><span class="p">),</span><span class="n">delta_x</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Second test with more application-related values from a gaussian distribution function (from scipy):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">delta_x</span><span class="p">),</span><span class="n">delta_x</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+<p>Import the Gruenwald function directly by:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>gruenwald
+<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>gruenwald<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+</pre></div>
+</div>
+<span class="target" id="module-ec_tools.semi_integration.riemann"></span><section id="riemann-algorithm">
+<h3>Riemann Algorithm<a class="headerlink" href="#riemann-algorithm" title="Permalink to this heading"></a></h3>
+<p>Implementation of the Riemann algorithm for
+semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
+based on Oldham: [1]</p>
+<p>EXAMPLES:</p>
+<p>Simple examples to compare the alg by a “double” semi-integration (i.e. resulting in a normal integration)
+with a numerical full integration from scipy. First one with linear graph for y:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">riemann</span><span class="p">(</span><span class="n">riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">delta_x</span><span class="p">),</span><span class="n">delta_x</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Second test with more application-related values from a gaussian distribution function (from scipy):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">riemann</span><span class="p">(</span><span class="n">riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">delta_x</span><span class="p">),</span><span class="n">delta_x</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+<p>Import the Riemann function directly by:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>riemann
+<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>riemann<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+</pre></div>
+</div>
+<span class="target" id="module-ec_tools.semi_integration.fast_riemann"></span><section id="fast-riemann-algorithm">
+<h3>Fast Riemann Algorithm<a class="headerlink" href="#fast-riemann-algorithm" title="Permalink to this heading"></a></h3>
+<p>Implementation of the fast Riemann algorithm for semi-integration.
+based on Pajkossy et al [2]</p>
+<p>Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
+c1 and c2.</p>
+<p>Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
+The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 10000 integration steps.</p>
+<p>EXAMPLES:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">2.5e-03</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">10001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">5e-03</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</section>
+<p>Import the Fast Riemann function directly by:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>fast_riemann
+<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>fast_riemann<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="performance-test">
+<h2>Performance Test<a class="headerlink" href="#performance-test" title="Permalink to this heading"></a></h2>
+<p>TBA</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
+<p><strong>[1]</strong> K.B. Oldham, <em>Electrochemical Science and Technology, John Wiley &amp; Sons Ltd, 2012</em></p>
+<p><strong>[2]</strong> T. Pajkossy, L. Nyikos, <em>Fast algorithm for differintegration</em>, J. Electroanal. Chem. 179, 1984</p>
+<p><strong>[3]</strong> Gruenwald, A.K. Uber, <em>“begrenzte” Derivationen und deren Anwendungen der Integration und Differentiation.</em> In Z. Angew. Math. und Phys. 1867, 12, 441-480</p>
+<p><strong>[4]</strong> Riemann, B. et al. in <em>Versuch einer allgemeinen Auffassung der Integration und Differentiation</em>, Gesammelte Werke, published posthumously, Teubner, Leipzig, 1892, pp. 353-366</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, the ec-tools authors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
