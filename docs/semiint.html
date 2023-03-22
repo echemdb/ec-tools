@@ -8,6 +8,8 @@
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -18,7 +20,9 @@
         <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script src="_static/katex.min.js"></script>
+        <script src="_static/auto-render.min.js"></script>
+        <script src="_static/katex_autorenderer.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -101,18 +105,18 @@
 <section id="module-ec_tools.semi_integration">
 <span id="fundamentals"></span><h2>Fundamentals<a class="headerlink" href="#module-ec_tools.semi_integration" title="Permalink to this heading"></a></h2>
 <p>The differentiation and the integration are common mathematical operations. 
-The differentiation of an arbitrary function is often expressed by <span class="math notranslate nohighlight">\(\frac{d}{dt} f(x)\)</span>.
+The differentiation of an arbitrary function is often expressed by <span class="math">\(\frac{d}{dt} f(x)\)</span>.
 Interestingly, the integration can also be expressed in a similar way:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau\)</span></p>
+<p><span class="math">\(\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau\)</span></p>
 <p>Therefore, these operations can be displayed in a more general way by:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau\)</span></p>
+<p><span class="math">\(\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau\)</span></p>
 <p>With:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(v= 1\)</span>: Differentiation</p></li>
-<li><p><span class="math notranslate nohighlight">\(v=-1\)</span>: Integration</p></li>
+<li><p><span class="math">\(v= 1\)</span>: Differentiation</p></li>
+<li><p><span class="math">\(v=-1\)</span>: Integration</p></li>
 </ul>
-<p>Let’s now introduce the so-called semi-operators. For <span class="math notranslate nohighlight">\(v=1/2\)</span> we have the seimi differentiation and
-(more interestingly for us) with <span class="math notranslate nohighlight">\(v=-1/2\)</span> the seimi integration. 
+<p>Let’s now introduce the so-called semi-operators. For <span class="math">\(v=1/2\)</span> we have the seimi differentiation and
+(more interestingly for us) with <span class="math">\(v=-1/2\)</span> the seimi integration. 
 The following picture visualize the idea of the semi integration and the semi differentiation.</p>
 <a class="reference internal image-reference" href="_images/semidif.png"><img alt="Image " src="_images/semidif.png" style="width: 600px;" /></a>
 <p>The figure shows, that a semi integration of a peak function (bottom left) results in a hybrid function (top) and 
@@ -122,36 +126,36 @@ expect that a semi differentiation, respectively a “full” differentiation is
 <p><strong>Semi Integration Methods</strong></p>
 <p>Now we introduce some methods to apply the semi integration, resp. differentiation. 
 These computations needs generally discrete values, i.e. the function graph (like above) has to be seperated into discrete finite values:</p>
-<p><span class="math notranslate nohighlight">\(f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)\)</span></p>
-<p>Here we assume that the step size <span class="math notranslate nohighlight">\(\delta\)</span> is equidistant, meaning for a fixed set of x-Values N:</p>
-<p><span class="math notranslate nohighlight">\(\delta = \frac{x_N}{N}\)</span></p>
+<p><span class="math">\(f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)\)</span></p>
+<p>Here we assume that the step size <span class="math">\(\delta\)</span> is equidistant, meaning for a fixed set of x-Values N:</p>
+<p><span class="math">\(\delta = \frac{x_N}{N}\)</span></p>
 <p>The following algorithms (Gruenwald and Riemann &amp; Liouville) are taken from Oldham in [1] and the fast Riemann from Pajkossy et. al. in [2].</p>
 <section id="gruenwald-algorithms">
 <h3>Gruenwald Algorithms<a class="headerlink" href="#gruenwald-algorithms" title="Permalink to this heading"></a></h3>
 <p>One sort of semi integration was introduced by Gruenwald [3] and 
 Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm called G1 algorithm.</p>
-<p>It can be generally expressed by taking the sum of the discrete function values multiplied with weights <span class="math notranslate nohighlight">\(w_i\)</span> 
+<p>It can be generally expressed by taking the sum of the discrete function values multiplied with weights <span class="math">\(w_i\)</span> 
 and then divided by the stepsize:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)\)</span></p>
+<p><span class="math">\(\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)\)</span></p>
 <p>The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
 <strong>Note</strong>, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].</p>
-<p>The weight can be expressed on different ways, often the single weights <span class="math notranslate nohighlight">\(w_i\)</span> depends on their predecessor <span class="math notranslate nohighlight">\(w_{i-1}\)</span>. 
+<p>The weight can be expressed on different ways, often the single weights <span class="math">\(w_i\)</span> depends on their predecessor <span class="math">\(w_{i-1}\)</span>. 
 As the factorial expression could lead to an overflow, this algorithm can be simplified.</p>
 <p>The <strong>Gruenwald G1 semi integration algorithm</strong> is defined as follows:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)\)</span></p>
+<p><span class="math">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)\)</span></p>
 <p>Which can be also displayed in reverse summation to allow an implementation:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)\)</span></p>
+<p><span class="math">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)\)</span></p>
 <p>With:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(w_0 = 1\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(w_n = \frac{(n-0.5)w_{n-1}}{n} = (1-\frac{0.5}{n})w_{n-1}\)</span></p></li>
+<li><p><span class="math">\(w_0 = 1\)</span></p></li>
+<li><p><span class="math">\(w_n = \frac{(n-0.5)w_{n-1}}{n} = (1-\frac{0.5}{n})w_{n-1}\)</span></p></li>
 </ul>
 <p>The previous definition can also be applied as  <strong>Gruenwald G1 semi differentiation algorithm</strong> with some changes:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)\)</span></p>
+<p><span class="math">\(\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)\)</span></p>
 <p>With:</p>
 <ul class="simple">
-<li><p><span class="math notranslate nohighlight">\(w_0 = 1\)</span></p></li>
-<li><p><span class="math notranslate nohighlight">\(w_n = \frac{(n-1.5)w_{n-1}}{n}\)</span></p></li>
+<li><p><span class="math">\(w_0 = 1\)</span></p></li>
+<li><p><span class="math">\(w_n = \frac{(n-1.5)w_{n-1}}{n}\)</span></p></li>
 </ul>
 </section>
 <section id="riemann-and-liouville-algorithms">
@@ -160,52 +164,52 @@ As the factorial expression could lead to an overflow, this algorithm can be sim
 described by Oldham in [1] as R1 algorithm in his web ressource 1244. 
 These sort of algorithms are mainly straightforward general-purpose algorithms.</p>
 <p>The algorithm (from Web1242) for the <strong>R1 semi integration</strong> is:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{-1/2}}{dt^{-1/2}}f(t)=\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.\)</span>
-<span class="math notranslate nohighlight">\(\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]\)</span></p>
+<p><span class="math">\(\frac{d^{-1/2}}{dt^{-1/2}}f(t)=\)</span></p>
+<p><span class="math">\(\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.\)</span>
+<span class="math">\(\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]\)</span></p>
 <p>The R1 algorithms are not usable for application to currents that arise from potential steps or leaps [1], as:</p>
 <p>1. The large current at t=0, immediately following the step is impossible to measure accurately and even if it would be possible,it is likely to be largely composed of a chemically uninteresting nonfaradaic component. But the algorithm still require a value of f(0).</p>
 <p>2. The algorithm is based on the assumption that f(t) can be treated as an assemblage of linear segments, 
 whereas faradaic currents arising from a potential step and are decidedly nonlinear with time.</p>
 <p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span></p>
-<p><span class="math notranslate nohighlight">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span>
-<span class="math notranslate nohighlight">\(\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
+<p><span class="math">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span></p>
+<p><span class="math">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span>
+<span class="math">\(\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
 <p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
-<p><span class="math notranslate nohighlight">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span>
-<span class="math notranslate nohighlight">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span> 
-<span class="math notranslate nohighlight">\(\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
+<p><span class="math">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span>
+<span class="math">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span> 
+<span class="math">\(\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
 </section>
 <section id="fast-riemann">
 <h3>Fast Riemann<a class="headerlink" href="#fast-riemann" title="Permalink to this heading"></a></h3>
 <p>The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
 Its big advantage is, that the computation time increases only linearly with the number of points (N). 
 Here it is necessary to define some input variables (beside the t &amp; I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
-<span class="math notranslate nohighlight">\(\Delta_t\)</span> defines the constant time intervall (i.e. <span class="math notranslate nohighlight">\(t_2 - t_1\)</span>) and <span class="math notranslate nohighlight">\(c_1, c_2\)</span> are constant values,
-which we set by default to <span class="math notranslate nohighlight">\(c_1=8, c_2=2\)</span> (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:</p>
+<span class="math">\(\Delta_t\)</span> defines the constant time intervall (i.e. <span class="math">\(t_2 - t_1\)</span>) and <span class="math">\(c_1, c_2\)</span> are constant values,
+which we set by default to <span class="math">\(c_1=8, c_2=2\)</span> (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:</p>
 <p><strong>Input</strong> 
-<span class="math notranslate nohighlight">\(q, N, \Delta_t, c_1, c_2, I\)</span></p>
-<p><span class="math notranslate nohighlight">\(t_0 = \Delta_t N^{1/2}\)</span></p>
-<p><span class="math notranslate nohighlight">\(a_0 = \sin(\pi q)/(\pi qt_0^q)\)</span></p>
-<p><strong>For</strong> <span class="math notranslate nohighlight">\(i = 0,2c_1c_2\)</span></p>
+<span class="math">\(q, N, \Delta_t, c_1, c_2, I\)</span></p>
+<p><span class="math">\(t_0 = \Delta_t N^{1/2}\)</span></p>
+<p><span class="math">\(a_0 = \sin(\pi q)/(\pi qt_0^q)\)</span></p>
+<p><strong>For</strong> <span class="math">\(i = 0,2c_1c_2\)</span></p>
 <blockquote>
-<div><p><span class="math notranslate nohighlight">\(j = i-c_1c_2\)</span></p>
-<p><span class="math notranslate nohighlight">\(a_j = (a_0/c_2)\exp(j/c_2)\)</span></p>
-<p><span class="math notranslate nohighlight">\(t_j = t_0 \exp(-j/qc_2)\)</span></p>
-<p><span class="math notranslate nohighlight">\(w_1(i) = t_j / (\Delta_t + t_j)\)</span></p>
-<p><span class="math notranslate nohighlight">\(w_2(i) = a_j(1-w_1(i))\)</span></p>
-<p><span class="math notranslate nohighlight">\(s(i) = 0\)</span></p>
+<div><p><span class="math">\(j = i-c_1c_2\)</span></p>
+<p><span class="math">\(a_j = (a_0/c_2)\exp(j/c_2)\)</span></p>
+<p><span class="math">\(t_j = t_0 \exp(-j/qc_2)\)</span></p>
+<p><span class="math">\(w_1(i) = t_j / (\Delta_t + t_j)\)</span></p>
+<p><span class="math">\(w_2(i) = a_j(1-w_1(i))\)</span></p>
+<p><span class="math">\(s(i) = 0\)</span></p>
 </div></blockquote>
-<p><strong>For</strong> <span class="math notranslate nohighlight">\(k=1,N\)</span></p>
+<p><strong>For</strong> <span class="math">\(k=1,N\)</span></p>
 <blockquote>
-<div><p><span class="math notranslate nohighlight">\(R(k)=0\)</span></p>
-<p><strong>For</strong> <span class="math notranslate nohighlight">\(i=0,2c_1c_2\)</span></p>
+<div><p><span class="math">\(R(k)=0\)</span></p>
+<p><strong>For</strong> <span class="math">\(i=0,2c_1c_2\)</span></p>
 <blockquote>
-<div><p><span class="math notranslate nohighlight">\(s(i)= s(i)w_1(i) + I(k)w_2(i)\)</span></p>
-<p><span class="math notranslate nohighlight">\(R(k) = R(k) + s(i)\)</span></p>
+<div><p><span class="math">\(s(i)= s(i)w_1(i) + I(k)w_2(i)\)</span></p>
+<p><span class="math">\(R(k) = R(k) + s(i)\)</span></p>
 </div></blockquote>
 </div></blockquote>
-<p>Here, <span class="math notranslate nohighlight">\(R\)</span> represents the calculated semi integral, i.e. <span class="math notranslate nohighlight">\(R \approx \frac{d^{v}}{dt^{v}} I(t)\)</span>.</p>
+<p>Here, <span class="math">\(R\)</span> represents the calculated semi integral, i.e. <span class="math">\(R \approx \frac{d^{v}}{dt^{v}} I(t)\)</span>.</p>
 </section>
 </section>
 <section id="module-ec_tools.semi_integration.semi_integration">
