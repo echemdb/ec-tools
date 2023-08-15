@@ -16,7 +16,8 @@ kernelspec:
 Welcome to the ec-tools documentation !
 ========================================
 
-The `ec-tools` library is a collection of tools which can be useful when working with electrochemical data such as cyclic voltammetry. One non-trivial example is the implementation of algorithms to compute the semi integrals which eventually allows for the elegant analysis of diffusion controlled electrochemical process such as electron transfer reactions from cyclic voltammetry data. 
+The `ec-tools` library is a collection of tools which can be useful while working with electrochemical data such as cyclic voltammetry. One non-trivial example is the implementation of algorithms to compute the semi integrals which eventually allows for the elegant analysis of diffusion controlled electrochemical processes such as electron transfer reactions from cyclic voltammetry data. 
+
 
 Installation
 ============
@@ -27,9 +28,11 @@ The package can be installed via
 pip install git+https://github.com/echemdb/ec-tools
 ```
 
+To speed up heavy computations, e.g. semi integrations, it is advised to install `pythran` or `numba` as backend.
+
 +++
 
-Read the [installation instructions](installation.md) on further details if you want to contribute to the project.
+Read the [installation instructions](installation.md) for further details.
 
 
 ```{toctree}

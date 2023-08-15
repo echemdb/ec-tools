@@ -8,7 +8,7 @@
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
       <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -53,9 +53,12 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Semi Integration and Differentiation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-ec_tools.semi_integration">Fundamentals</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#gruenwald-algorithms">Gruenwald Algorithms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#riemann-and-liouville-algorithms">Riemann and Liouville Algorithms</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#fast-riemann">Fast Riemann</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#semi-integration-methods">Semi Integration Methods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gruenwald-algorithms">Gruenwald Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#riemann-and-liouville-algorithms">Riemann and Liouville Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fast-riemann">Fast Riemann</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-ec_tools.semi_integration.semi_integration">Call Algorithms</a><ul>
@@ -64,7 +67,23 @@
 <li class="toctree-l3"><a class="reference internal" href="#fast-riemann-algorithm">Fast Riemann Algorithm</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#performance-test">Performance Test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accuracy-test">Accuracy Test</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-semi-integration">Single Semi Integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#full-integration">Full Integration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#full-integration-with-realistic-values">Full Integration with Realistic Values</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#functionality-test">Functionality Test</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#semi-integration-parameter-test">Semi Integration Parameter Test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#semi-differentiation-test">Semi Differentiation Test</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parameter-test-for-fr-algorithm">Parameter Test for FR-Algorithm</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#composition-test">Composition Test</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-test">Performance Test</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
@@ -101,57 +120,83 @@
              
   <section id="semi-integration-and-differentiation">
 <h1>Semi Integration and Differentiation<a class="headerlink" href="#semi-integration-and-differentiation" title="Permalink to this heading"></a></h1>
-<p>The following introduction of the fundamentals is (partly) taken from Oldham’s good explanations in [1].</p>
+<p>The main part of the ec-tools package are the implemented numerical semi integration (or differentiation) algorithms. The following section describes the underlying principles and algorithms, based on literature of Oldham  <span id="id1">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>, <a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span> and Pajkossy <span id="id2">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>. The second section provides information about how to work with the algorithms. In the third section, the different algorithms are tested for accuracy, functionality and (time) performance.</p>
 <section id="module-ec_tools.semi_integration">
 <span id="fundamentals"></span><h2>Fundamentals<a class="headerlink" href="#module-ec_tools.semi_integration" title="Permalink to this heading"></a></h2>
 <p>The differentiation and the integration are common mathematical operations. 
-The differentiation of an arbitrary function is often expressed by <span class="math">\(\frac{d}{dt} f(x)\)</span>.
-Interestingly, the integration can also be expressed in a similar way:</p>
-<p><span class="math">\(\frac{d^{-1}}{dt^{-1}} f(x)= \int_0^t f(\tau) d\tau\)</span></p>
-<p>Therefore, these operations can be displayed in a more general way by:</p>
-<p><span class="math">\(\frac{d^{v}}{dt^{v}} f(x) = \int_0^t f(\tau) d\tau\)</span></p>
+The differentiation of an arbitrary function is often expressed by <span class="math">\(\frac{\mathrm{d}}{\mathrm{d}x} f(x)\)</span>.
+Interestingly, the integration can also be defined in a similar way:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{-1}}{\mathrm{d}x^{-1}} f(x)= \int_0^x f(\tau) \mathrm{d}\tau
+
+\]</div>
+<p>Here it must be considered that a lower limit must be defined so that the integral is completely defined.
+These operations can be then displayed in a more general way by:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{v}}{\mathrm{d}x^{v}} f(x) = \int_0^x f(\tau) \mathrm{d}\tau
+
+\]</div>
 <p>With:</p>
 <ul class="simple">
 <li><p><span class="math">\(v= 1\)</span>: Differentiation</p></li>
 <li><p><span class="math">\(v=-1\)</span>: Integration</p></li>
 </ul>
-<p>Let’s now introduce the so-called semi-operators. For <span class="math">\(v=1/2\)</span> we have the seimi differentiation and
-(more interestingly for us) with <span class="math">\(v=-1/2\)</span> the seimi integration. 
-The following picture visualize the idea of the semi integration and the semi differentiation.</p>
+<p>The so-called semi-operators are <span class="math">\(v=\frac{1}{2}\)</span> for semi differentiation and <span class="math">\(v=-\frac{1}{2}\)</span> for semi integration. 
+The following figure visualizes the idea of semi integration and semi differentiation.</p>
 <a class="reference internal image-reference" href="_images/semidif.png"><img alt="Image " src="_images/semidif.png" style="width: 600px;" /></a>
-<p>The figure shows, that a semi integration of a peak function (bottom left) results in a hybrid function (top) and 
-by performing another semi integration it brings a wave function (bottom right), which is equal to 
-perform a “full” integration of the peak function. The opposide direction is similar, 
-expect that a semi differentiation, respectively a “full” differentiation is performed instead.</p>
-<p><strong>Semi Integration Methods</strong></p>
-<p>Now we introduce some methods to apply the semi integration, resp. differentiation. 
-These computations needs generally discrete values, i.e. the function graph (like above) has to be seperated into discrete finite values:</p>
-<p><span class="math">\(f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)\)</span></p>
-<p>Here we assume that the step size <span class="math">\(\delta\)</span> is equidistant, meaning for a fixed set of x-Values N:</p>
-<p><span class="math">\(\delta = \frac{x_N}{N}\)</span></p>
-<p>The following algorithms (Gruenwald and Riemann &amp; Liouville) are taken from Oldham in [1] and the fast Riemann from Pajkossy et. al. in [2].</p>
+<p>A semi integration of a peak function (bottom left) results in a hybrid function (top) and 
+by applying another semi integration it is transformed into a wave-like function (bottom right), which is equal to 
+performing a regular integration of the peak function. The operations in opposite direction are analog, 
+except that semi differentiations and a regular differentiation are performed, respectively.</p>
+<section id="semi-integration-methods">
+<h3>Semi Integration Methods<a class="headerlink" href="#semi-integration-methods" title="Permalink to this heading"></a></h3>
+<p>Several methods exist for applying semi integration and semi differentiation, respectively. 
+These computations generally need discrete values, i.e. the function graph (see above) has to be seperated into discrete finite values:</p>
+<div class="math">
+\[f(0), f(\delta), ..., f((N-1)\delta), f(N\delta)
+
+\]</div>
+<p>It is assumed that the step size <span class="math">\(\delta\)</span> is equidistant, meaning for a fixed set of x-Values N:</p>
+<div class="math">
+\[\delta = \frac{x_N}{N}
+
+\]</div>
+<p>The following algorithms (Gruenwald and Riemann &amp; Liouville) are taken from Oldham in <span id="id1">[<a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span> and the fast Riemann from Pajkossy et. al. in <span id="id2">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>.</p>
 <section id="gruenwald-algorithms">
-<h3>Gruenwald Algorithms<a class="headerlink" href="#gruenwald-algorithms" title="Permalink to this heading"></a></h3>
-<p>One sort of semi integration was introduced by Gruenwald [3] and 
-Oldham shows in his web ressource 1244 from [1] how this type of semi integration can be applied as an algorithm called G1 algorithm.</p>
-<p>It can be generally expressed by taking the sum of the discrete function values multiplied with weights <span class="math">\(w_i\)</span> 
-and then divided by the stepsize:</p>
-<p><span class="math">\(\frac{d^{\pm 0.5}}{dt^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)\)</span></p>
-<p>The G1 algorithms is ideal for voltammograms like linear-scan or cyclic versions, where the early signals are small. 
-<strong>Note</strong>, that these algorithms are less suitable for step and pulse varieties, in which the initial currents are large [1].</p>
-<p>The weight can be expressed on different ways, often the single weights <span class="math">\(w_i\)</span> depends on their predecessor <span class="math">\(w_{i-1}\)</span>. 
-As the factorial expression could lead to an overflow, this algorithm can be simplified.</p>
+<h4>Gruenwald Algorithms<a class="headerlink" href="#gruenwald-algorithms" title="Permalink to this heading"></a></h4>
+<p>One method of semi integration was introduced by Gruenwald <span id="id3">[<a class="reference internal" href="#id12" title="AK Grünwald. Über &quot;begrenzte&quot; Derivation und deren Anwendung. Z. Angew. Math. Phys., 12:441–480, 1867.">2</a>]</span> and
+Oldham shows in his web ressource 1244 from <span id="id4">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span> how this type of semi integration can be applied as an algorithm, called G1.</p>
+<p>It can be generally expressed by the sum of the discrete function values multiplied with weights <span class="math">\(w_n\)</span> 
+divided by the stepsize:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{\pm 0.5}}{\mathrm{d}t^{\pm 0.5}} f(t) =\frac{1}{\delta^{\pm 0.5}} \sum_{n=0}^{N-1} w_n f(n\delta)
+
+\]</div>
+<p>The G1 algorithm is ideal for (cyclic) voltammograms, where the early signals are small. 
+<strong>Note</strong>, that these algorithms are less suitable for step and pulse techniques, in which the initial currents are large <span id="id5">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span>.</p>
+<p>The weights can be expressed in different ways. The single weights <span class="math">\(w_n\)</span> often depend on their predecessor <span class="math">\(w_{n-1}\)</span>. 
+As the factorial expression could lead to an computive intensive overflow, this algorithm needs to be simplified.</p>
 <p>The <strong>Gruenwald G1 semi integration algorithm</strong> is defined as follows:</p>
-<p><span class="math">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)\)</span></p>
-<p>Which can be also displayed in reverse summation to allow an implementation:</p>
-<p><span class="math">\(\frac{d^{- 0.5}}{dt^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)\)</span></p>
+<div class="math">
+\[\frac{\mathrm{d}^{- 0.5}}{\mathrm{d}t^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=1}^{N} w_{N-n} f(n\delta)
+
+\]</div>
+<p>Which can be also displayed in reverse summation to allow a more efficient
+implementation:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{- 0.5}}{\mathrm{d}t^{- 0.5}} f(t) \approx \sqrt{\delta} \sum_{n=N}^{1} w_{N-n} f(n\delta)
+
+\]</div>
 <p>With:</p>
 <ul class="simple">
 <li><p><span class="math">\(w_0 = 1\)</span></p></li>
 <li><p><span class="math">\(w_n = \frac{(n-0.5)w_{n-1}}{n} = (1-\frac{0.5}{n})w_{n-1}\)</span></p></li>
 </ul>
 <p>The previous definition can also be applied as  <strong>Gruenwald G1 semi differentiation algorithm</strong> with some changes:</p>
-<p><span class="math">\(\frac{d^{0.5}}{dt^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)\)</span></p>
+<div class="math">
+\[\frac{\mathrm{d}^{0.5}}{\mathrm{d}t^{0.5}} f(t) \approx \frac{1}{\sqrt{\delta}} \sum_{n=0}^{N-1} w_{N-n} f(n\delta)
+
+\]</div>
 <p>With:</p>
 <ul class="simple">
 <li><p><span class="math">\(w_0 = 1\)</span></p></li>
@@ -159,88 +204,76 @@ As the factorial expression could lead to an overflow, this algorithm can be sim
 </ul>
 </section>
 <section id="riemann-and-liouville-algorithms">
-<h3>Riemann and Liouville Algorithms<a class="headerlink" href="#riemann-and-liouville-algorithms" title="Permalink to this heading"></a></h3>
-<p>Another sort to determine the semi integral was introduced by Riemann and Liouville [4] and 
-described by Oldham in [1] as R1 algorithm in his web ressource 1244. 
+<h4>Riemann and Liouville Algorithms<a class="headerlink" href="#riemann-and-liouville-algorithms" title="Permalink to this heading"></a></h4>
+<p>Another method to determine the semi integral was introduced by Riemann and Liouville <span id="id6">[<a class="reference internal" href="#id16" title="Richard Dedekind and Heinrich Martin Weber, editors. Versuch einer allgemeinen Auffassung der Integration und Differentiation. (1847.), pages 331–344. Cambridge University Press, 1 edition, October 2013. doi:10.1017/CBO9781139568050.020.">1</a>]</span> and 
+described by Oldham in <span id="id7">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span> as R1 algorithm in his web ressource 1244. 
 These sort of algorithms are mainly straightforward general-purpose algorithms.</p>
-<p>The algorithm (from Web1242) for the <strong>R1 semi integration</strong> is:</p>
-<p><span class="math">\(\frac{d^{-1/2}}{dt^{-1/2}}f(t)=\)</span></p>
-<p><span class="math">\(\frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^{3/2} + (N-1)^{3/2} \right\}f(0) + \right.\)</span>
-<span class="math">\(\left.\sum_{n=1}^{N-1} \left\{ (N-n+1)^{3/2} - 2 (N-n)^{3/2} + (N-n-1)^{3/2} \right\}f(n\delta) \right]\)</span></p>
-<p>The R1 algorithms are not usable for application to currents that arise from potential steps or leaps [1], as:</p>
-<p>1. The large current at t=0, immediately following the step is impossible to measure accurately and even if it would be possible,it is likely to be largely composed of a chemically uninteresting nonfaradaic component. But the algorithm still require a value of f(0).</p>
-<p>2. The algorithm is based on the assumption that f(t) can be treated as an assemblage of linear segments, 
-whereas faradaic currents arising from a potential step and are decidedly nonlinear with time.</p>
-<p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
-<p><span class="math">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span></p>
-<p><span class="math">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span>
-<span class="math">\(\left. \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
-<p>The general definition for the <strong>R1 semi differentiation</strong> is defined by:</p>
-<p><span class="math">\(\frac{d^{1/2}}{dt^{1/2}}f(t)=\)</span>
-<span class="math">\(\frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) +\right.\)</span> 
-<span class="math">\(\left.\sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\)</span></p>
+<p>The algorithm for the <strong>R1 semi integration</strong> is defined by:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{-\frac{1}{2}}}{\mathrm{d}t^{-\frac{1}{2}}}f(t) = \frac{4}{3} \sqrt{\frac{\delta}{\pi}} \left[ f(N\delta) + \left\{ \frac{3}{2}\sqrt{N} - N^\frac{3}{2} + (N-1)^\frac{3}{2} \right\}f(0) \right.\\
+
+\left. + \sum_{n=1}^{N-1} \left\{ (N-n+1)^\frac{3}{2} - 2 (N-n)^\frac{3}{2} + (N-n-1)^\frac{3}{2} \right\}f(n\delta) \right]\]</div>
+<p>Similar to the G1 algorithm is the R1 for semi integration and semi differentiation. But it is not usable for application to currents that arise from potential steps or leaps <span id="id8">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span>, as:</p>
+<ol class="arabic simple">
+<li><p>The large current at <span class="math">\(t=0\)</span>, immediately following the step is impossible to measure accurately and even if it would be possible,
+it is likely to be largely composed of a chemically uninteresting non-faradaic component. But the algorithm still requires a value of <span class="math">\(f(0)\)</span>.</p></li>
+<li><p>The algorithm is based on the assumption that <span class="math">\(f(t)\)</span> can be treated as an assemblage of linear segments, 
+whereas faradaic currents arising from a potential step and are non-linear with time.</p></li>
+</ol>
+<p>The general definition for the <strong>R1 semi differentiation</strong> is:</p>
+<div class="math">
+\[\frac{\mathrm{d}^{\frac{1}{2}}}{\mathrm{d}t^{\frac{1}{2}}}f(t) = \frac{2}{\sqrt{\pi\delta}} \left[ f(N\delta) + \left\{ \frac{1}{2\sqrt{N}} - \sqrt{N} + \sqrt{N-1}\right\}f(0) \right.\\
+
+\left. + \sum_{n=1}^{N-1} \left\{ \sqrt{N-n+1} - 2 \sqrt{N-n} + \sqrt{N-n-1} \right\}f(n\delta) \right]\]</div>
 </section>
 <section id="fast-riemann">
-<h3>Fast Riemann<a class="headerlink" href="#fast-riemann" title="Permalink to this heading"></a></h3>
-<p>The following algorithm was introduced by Pajkossy et al. in 1984 [2] and is based on the Riemann-Liouville transformation (RLT). 
-Its big advantage is, that the computation time increases only linearly with the number of points (N). 
-Here it is necessary to define some input variables (beside the t &amp; I(t) data), where q is equal to v, describing a semi integration or semi differentiation. 
-<span class="math">\(\Delta_t\)</span> defines the constant time intervall (i.e. <span class="math">\(t_2 - t_1\)</span>) and <span class="math">\(c_1, c_2\)</span> are constant values,
-which we set by default to <span class="math">\(c_1=8, c_2=2\)</span> (but still changeable). With these variables, the procedure of the algorithm can be described as pseudo code:</p>
-<p><strong>Input</strong> 
-<span class="math">\(q, N, \Delta_t, c_1, c_2, I\)</span></p>
-<p><span class="math">\(t_0 = \Delta_t N^{1/2}\)</span></p>
-<p><span class="math">\(a_0 = \sin(\pi q)/(\pi qt_0^q)\)</span></p>
-<p><strong>For</strong> <span class="math">\(i = 0,2c_1c_2\)</span></p>
-<blockquote>
-<div><p><span class="math">\(j = i-c_1c_2\)</span></p>
-<p><span class="math">\(a_j = (a_0/c_2)\exp(j/c_2)\)</span></p>
-<p><span class="math">\(t_j = t_0 \exp(-j/qc_2)\)</span></p>
-<p><span class="math">\(w_1(i) = t_j / (\Delta_t + t_j)\)</span></p>
-<p><span class="math">\(w_2(i) = a_j(1-w_1(i))\)</span></p>
-<p><span class="math">\(s(i) = 0\)</span></p>
-</div></blockquote>
-<p><strong>For</strong> <span class="math">\(k=1,N\)</span></p>
-<blockquote>
-<div><p><span class="math">\(R(k)=0\)</span></p>
-<p><strong>For</strong> <span class="math">\(i=0,2c_1c_2\)</span></p>
-<blockquote>
-<div><p><span class="math">\(s(i)= s(i)w_1(i) + I(k)w_2(i)\)</span></p>
-<p><span class="math">\(R(k) = R(k) + s(i)\)</span></p>
-</div></blockquote>
-</div></blockquote>
-<p>Here, <span class="math">\(R\)</span> represents the calculated semi integral, i.e. <span class="math">\(R \approx \frac{d^{v}}{dt^{v}} I(t)\)</span>.</p>
+<h4>Fast Riemann<a class="headerlink" href="#fast-riemann" title="Permalink to this heading"></a></h4>
+<p>The following algorithm was introduced by Pajkossy et al. in 1984 <span id="id9">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span> and is based on the Riemann-Liouville transformation (RLT). 
+Its big advantage is, that the computation time increases only linearly with the number of points (<span class="math">\(N\)</span>). 
+Here it is necessary to define some input variables (besides <span class="math">\(t\)</span> and <span class="math">\(I(t)\)</span> data), where <span class="math">\(q\)</span> is equal to <span class="math">\(v\)</span>, describing a semi integration or semi differentiation. 
+<span class="math">\(\delta_t\)</span> defines the constant time intervall (i.e. <span class="math">\(t_2 - t_1\)</span>) and <span class="math">\(c_1, c_2\)</span> are constant values,
+which is set to <span class="math">\(c_1=8, c_2=2\)</span> by default, as recommended by Pajkossy. With these variables, the  algorithm can be described as pseudo code:</p>
+<a class="reference internal image-reference" href="_images/alg_fast_riemann.png"><img alt="Image" src="_images/alg_fast_riemann.png" style="width: 500px;" /></a>
+<p>Here, <span class="math">\(R\)</span> represents the calculated semi integral, i.e. <span class="math">\(R \approx \frac{\mathrm{d}^{v}}{\mathrm{d}t^{v}} I(t)\)</span>.</p>
+</section>
 </section>
 </section>
 <section id="module-ec_tools.semi_integration.semi_integration">
 <span id="call-algorithms"></span><h2>Call Algorithms<a class="headerlink" href="#module-ec_tools.semi_integration.semi_integration" title="Permalink to this heading"></a></h2>
-<p>To perform a semi integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) or semi differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
-on given data (<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code> ) with speed up by transonic (with numba or pythran backend) or without simply using python
-different methods are implemented.</p>
+<p>A generalized call is implemented, in which the user can define with <code class="docutils literal notranslate"><span class="pre">v</span></code> the operation i.e. semi integration
+(<code class="docutils literal notranslate"><span class="pre">v</span></code> <span class="math">\(=-0.5\)</span>) or semi differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> <span class="math">\(=0.5\)</span>) for a predefined dataset (<code class="docutils literal notranslate"><span class="pre">y</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code>).
+Furthermore he can optionally set a flag (<code class="docutils literal notranslate"><span class="pre">alg</span></code>) to select a specific algorithms and with <code class="docutils literal notranslate"><span class="pre">transonic_backend</span></code>
+he apply a speed up by transonic (with numba or pythran backend).</p>
 <p>Available algorithms (<code class="docutils literal notranslate"><span class="pre">alg</span></code> ):</p>
-<p><code class="docutils literal notranslate"><span class="pre">frlt</span></code>: Fast Test Riemann-Liouville transformation</p>
+<p><code class="docutils literal notranslate"><span class="pre">frlt</span></code>: Fast Riemann-Liouville transformation (default)</p>
 <p><code class="docutils literal notranslate"><span class="pre">g1</span></code>: Gruenwald</p>
 <p><code class="docutils literal notranslate"><span class="pre">r1</span></code>: Riemann and Liouville</p>
-<p>Available settings (<code class="docutils literal notranslate"><span class="pre">transonic_backend</span></code> ):</p>
-<p><code class="docutils literal notranslate"><span class="pre">python</span></code>: Python implementation</p>
-<p><code class="docutils literal notranslate"><span class="pre">numba</span></code>: Numba package with jit(just in time)</p>
-<p><code class="docutils literal notranslate"><span class="pre">pythran</span></code>: Transonic package with numba backend</p>
+<p>Available backends (<code class="docutils literal notranslate"><span class="pre">transonic_backend</span></code> ):</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span></code>: Transonic package with python backend (default)</p>
+<p><code class="docutils literal notranslate"><span class="pre">numba</span></code>: Transonic package with numba backend</p>
+<p><code class="docutils literal notranslate"><span class="pre">pythran</span></code>: Transonic package with pythran backend</p>
+<p><code class="docutils literal notranslate"><span class="pre">d_tol</span></code> (by default: <span class="math">\(1 \cdot 10^{-5}\)</span>) defines the maximum relational difference between individual step
+and the average step size. It can be modified, if the time steps are not equally spaced.</p>
 <p>The generalized <code class="docutils literal notranslate"><span class="pre">semi_integration</span></code> function can be imported and executed by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>semi_integration
-semi_integration<span class="o">(</span>I,<span class="w"> </span>t,<span class="w"> </span>alg,<span class="w"> </span>transonic_backend<span class="o">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">semi_integration</span>
+<span class="n">semi_integration</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">transonic_backend</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Here, the implemented algorithms can be selected by the alg flag (see above) or</p>
-<p>the algorithms can be imported and executed individually (listed below).
-Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the nice <code class="docutils literal notranslate"><span class="pre">transonic</span></code> library has been build in.</p>
+<p>The implemented algorithms can be selected by the <code class="docutils literal notranslate"><span class="pre">alg</span></code> flag (see above) or
+the algorithms can be imported and executed individually for more control (see below).
+Since the semi-integration can be more or less computationally intensive the possibility to speed up the computation by relying on the <code class="docutils literal notranslate"><span class="pre">transonic</span></code> library is included.</p>
 <span class="target" id="module-ec_tools.semi_integration.gruenwald"></span><section id="gruenwald-algorithm">
 <h3>Gruenwald Algorithm<a class="headerlink" href="#gruenwald-algorithm" title="Permalink to this heading"></a></h3>
 <p>Implementation of the Gruenwald algorithm for
-semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
-based on Oldham: [1]</p>
+semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> <span class="math">\(=-0.5\)</span>) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code>:math:` =0.5`)
+based on Oldham <span id="id1">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span>.</p>
+<p>Input:</p>
+<p><code class="docutils literal notranslate"><span class="pre">y</span></code>: y-values</p>
+<p><code class="docutils literal notranslate"><span class="pre">delta_x</span></code>: step size (i.e. x2-x1)</p>
+<p><code class="docutils literal notranslate"><span class="pre">v</span></code>: <span class="math">\(-0.5\)</span> (default) or in range <span class="math">\(-1 &lt; v &lt; 1\)</span></p>
 <p>EXAMPLES:</p>
-<p>Simple examples to compare the alg by a “double” semi-integration (i.e. resulting in a normal integration)
-with a numerical full integration from scipy. First one with linear graph for y:</p>
+<p>Simple examples to verify the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+and comparing the result with a numerical integration from scipy. First, the input data is a function with constant <span class="math">\(y\)</span>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -261,18 +294,22 @@ with a numerical full integration from scipy. First one with linear graph for y:
 </div>
 </section>
 <p>Import the Gruenwald function directly by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>gruenwald
-<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>gruenwald<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">gruenwald</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">gruenwald</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
 <span class="target" id="module-ec_tools.semi_integration.riemann"></span><section id="riemann-algorithm">
 <h3>Riemann Algorithm<a class="headerlink" href="#riemann-algorithm" title="Permalink to this heading"></a></h3>
 <p>Implementation of the Riemann algorithm for
-semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> =-0.5) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code> =0.5)
-based on Oldham: [1]</p>
+semi-integration (<code class="docutils literal notranslate"><span class="pre">v</span></code> <span class="math">\(=-0.5\)</span>) and semi-differentiation (<code class="docutils literal notranslate"><span class="pre">v</span></code>:math:` =0.5`)
+based on Oldham <span id="id1">[<a class="reference internal" href="#id13" title="Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. Electrochemical Science and Technology: Fundamentals and Applications. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.">3</a>]</span>.</p>
+<p>Input:</p>
+<p><code class="docutils literal notranslate"><span class="pre">y</span></code>: y-values</p>
+<p><code class="docutils literal notranslate"><span class="pre">delta_x</span></code>: step size (i.e. x2-x1)</p>
+<p><code class="docutils literal notranslate"><span class="pre">v</span></code>: -0.5 (default) or 0.5</p>
 <p>EXAMPLES:</p>
-<p>Simple examples to compare the alg by a “double” semi-integration (i.e. resulting in a normal integration)
-with a numerical full integration from scipy. First one with linear graph for y:</p>
+<p>Simple examples to verify the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+and comparing the result with a numerical integration from scipy. First, the input data is a function with constant <span class="math">\(y\)</span>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -281,7 +318,7 @@ with a numerical full integration from scipy. First one with linear graph for y:
 <span class="go">True</span>
 </pre></div>
 </div>
-<p>Second test with more application-related values from a gaussian distribution function (from scipy):</p>
+<p>Second, test with more application-related values from a gaussian distribution function (from scipy):</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
@@ -293,19 +330,23 @@ with a numerical full integration from scipy. First one with linear graph for y:
 </div>
 </section>
 <p>Import the Riemann function directly by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>riemann
-<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>riemann<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">riemann</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">riemann</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 </pre></div>
 </div>
 <span class="target" id="module-ec_tools.semi_integration.fast_riemann"></span><section id="fast-riemann-algorithm">
 <h3>Fast Riemann Algorithm<a class="headerlink" href="#fast-riemann-algorithm" title="Permalink to this heading"></a></h3>
 <p>Implementation of the fast Riemann algorithm for semi-integration.
-based on Pajkossy et al [2]</p>
-<p>Return the semiintegral R of order q for y with the x interval delta_x and the filter constants
-c1 and c2.</p>
-<p>Semi-integrating two times with order q = -0.5 should give the same result as integrating once.
-The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 10000 integration steps.</p>
-<p>EXAMPLES:</p>
+based on Pajkossy et al <span id="id1">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>. Return the semiintegral R of order <span class="math">\(q\)</span> for <span class="math">\(y\)</span>
+with the <span class="math">\(x\)</span> interval <span class="math">\(\delta_x\)</span> and the filter constants <span class="math">\(c_1\)</span> and <span class="math">\(c_2\)</span>.</p>
+<p>Input:</p>
+<p><code class="docutils literal notranslate"><span class="pre">y</span></code>: y-values</p>
+<p><code class="docutils literal notranslate"><span class="pre">delta_x</span></code>: step size (i.e. x2-x1), by default 1</p>
+<p><code class="docutils literal notranslate"><span class="pre">v</span></code>: -0.5 (default) or 1 &lt; q &lt; 0</p>
+<p><code class="docutils literal notranslate"><span class="pre">c1,</span> <span class="pre">c2</span></code>: filter constants (default c1: 8, c2: 2)</p>
+<p>EXAMPLES:
+Simple examples to verfiy the algorithm by applying semi-integration twice (i.e. resulting in a normal integration)
+and comparing the result with a numerical integration from scipy. First, the input data is a function with constant <span class="math">\(y\)</span>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -314,6 +355,17 @@ The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 1
 <span class="go">True</span>
 </pre></div>
 </div>
+<p>Second, test with more application-related values from a gaussian distribution function (from scipy):</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Increase the number of samples:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10001</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">10001</span><span class="p">)</span>
@@ -321,23 +373,198 @@ The relative error should not exceed 0.25 percent for 1000 and 0.5 percent per 1
 <span class="go">True</span>
 </pre></div>
 </div>
-</section>
-<p>Import the Fast Riemann function directly by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>from<span class="w"> </span>ec_tools.semi_integration<span class="w"> </span>import<span class="w"> </span>fast_riemann
-<span class="nv">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>fast_riemann<span class="o">(</span>I,<span class="w"> </span>delta_t,<span class="w"> </span>v<span class="o">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">10001</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">500</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="o">=</span><span class="n">delta_x</span><span class="p">),</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">initial</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-0</span><span class="p">)</span>
+<span class="go">True</span>
 </pre></div>
 </div>
 </section>
+<p>Import the Fast Riemann function directly by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ec_tools.semi_integration</span> <span class="kn">import</span> <span class="n">fast_riemann</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">fast_riemann</span><span class="p">(</span><span class="n">I</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
+<p>In this section the semi-algorithms are tested on simple and more applied functions in order to investigate their accuracy, general functionality and performance regarding time and deviations (absolute and relative errors).</p>
+<section id="accuracy-test">
+<h3>Accuracy Test<a class="headerlink" href="#accuracy-test" title="Permalink to this heading"></a></h3>
+<section id="single-semi-integration">
+<h4>Single Semi Integration<a class="headerlink" href="#single-semi-integration" title="Permalink to this heading"></a></h4>
+<p>In order to evaluate the general quality of the semi-integration algorithms,
+first some simple functions are considered, i.e. <span class="math">\(f = C\)</span> (any constant), <span class="math">\(f = x\)</span> and <span class="math">\(f = x^2\)</span>.
+Oldham provides in his literature <span id="id3">[<a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span>, a table in chapter 7.3 (p. 118f) with</p>
+<p>the resulting semi-differentiation (<span class="math">\(v=0.5\)</span>) and semi-integration (<span class="math">\(v=-0.5\)</span>) of different functions.
+These results are derived by specialization of the rules given in tha chapters 3-6 in <span id="id4">[<a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span>.
+The following table shows the results for the chosen cases.</p>
+<p><img alt="../test/data/images/semi_results.png" src="_images/semi_results.png" /></p>
+<p>Furthermore, Oldham provides in his book <span id="id5">[<a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span> in chapter 8.2 a table (8.2.1), which gives the relative errors for different semi-integration algorithms. The next table provides these expected relative errors for our implemented algorithms (G1: Gruenwald; R1: Riemann). There, <span class="math">\(ζ\)</span> is the Riemann zeta function, which is already implemented in scipy.special.zeta. For Riemann, the relative error applies only for semi-integration (i.e. <span class="math">\(q&lt;0\)</span>).</p>
+<p><img alt="../test/data/images/semi_err.png" src="_images/semi_err.png" /></p>
+<p><strong>Test 1:</strong> <span class="math">\(f=1\)</span> (constant)</p>
+<p>In the first test, the accuracy (relative error) of the implemented algorithms is tested with a constant function (<span class="math">\(f=1\)</span>) with <span class="math">\(1000\)</span> steps. The following figure shows the relative error (semi logarithmically) along an x-range.
+The Gruenwald algorithm (green) exhibits a declining error but does not reach the predicted lower limit (red) from Oldhams table.
+The Riemann algorithm (blue) shows a similiar decrease of the relative error, but does not reach its predicted limit.</p>
+<p>The lower limit for Rieman is not displayed here, as it should be zero (i.e. exact) for this case.
+The purple curve displays the result of the fast Riemann, which shows first a stronger decrease but then it increases slightly.</p>
+<p><img alt="../test/data/images/Accuracy_C.png" src="_images/Accuracy_C.png" /></p>
+<p><strong>Test 2:</strong> <span class="math">\(f=x\)</span></p>
+<p>The next test covers the application on <span class="math">\(f=x\)</span> with same other settings as before. The Riemann algorithm (blue) reaches in this case already the machine precision (<span class="math">\(\varepsilon_{f64}=2.22 \cdot 10^{-16} \)</span>), i.e. it is as accurate as possible with f64 floats. The Gruenwald algorithm (green) reduces down to <span class="math">\(10^{-3}\)</span> and seems to reach the predicted limit (red). The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This so-called inverted peak will be discussed later, as the <span class="math">\(c\)</span> parameters of that algorithm play an important role to that behaviour.</p>
+<p><img alt="../test/data/images/Accuracy_x.png" src="_images/Accuracy_x.png" /></p>
+<p><strong>Test 3:</strong> <span class="math">\(f=x^2\)</span></p>
+<p>The last test with <span class="math">\(f=x^2\)</span> and same other settings steps is displayed in the following figure. Here, the Gruenwald algorithm (green) behaves similar to the first case and reaches already the mentioned limitation (red). The Riemann algorithm (blue) has a stronger decrease and seems to approach its predicted limitation (red, dotted) also. The fast Riemann shows again an inverted peak, similar to the test with <span class="math">\(f=x\)</span>.</p>
+<p><img alt="../test/data/images/Accuracy_x2.png" src="_images/Accuracy_x2.png" /></p>
+</section>
+<section id="full-integration">
+<h4>Full Integration<a class="headerlink" href="#full-integration" title="Permalink to this heading"></a></h4>
+<p>The previous Tests show, that all algorithms can perform a single semi-integration with suitable accuracy for many applications. By performing a semi-integration twice, the result should be the same as the one from a full integration with common numerical methods. Therefore, the same functions as before are used as input. The integral for all three cases is also given, as the functions are quite simple. In addition, one numerical integration method (from scipy), namely the cumulative trapezoidal one will be also applied and compared.</p>
+<p><strong>Test 1:</strong> <span class="math">\(f=1\)</span> (constant)</p>
+<p>The first test case considers the constant function as input and all semi-integration methods are applied twice. The next figure shows the relative error (logarithmically) along the x values. Here the Gruenwald algorithm (green) shows results close to the machine precision. Behind that graph is also the graph for the numerical integration (red) hidden, with the same precision. The Riemann algorithm (blue) shows again a steady decease and the fast Riemann (purple) is around <span class="math">\(10^{-3}\)</span> and increases slowly.</p>
+<p><img alt="../test/data/images/Accuracy_x2.png" src="_images/Accuracy_full_C.png" /></p>
+<p><strong>Test 2:</strong> <span class="math">\(f=x\)</span></p>
+<p>With the case of <span class="math">\(f=x\)</span>, the implemented semi-integration algorithms show nearly the same decrease, except that for fast Riemann (purple) where the inverted peak is visible again. The numerical integration (red) is here close to machine precision, again.</p>
+<p><img alt="../test/data/images/Accuracy_x2.png" src="_images/Accuracy_full_x.png" /></p>
+<p><strong>Test 3:</strong> <span class="math">\(f=x^2\)</span></p>
+<p>The last test case with <span class="math">\(f=x^2\)</span> shows similar results like previous. All three implemented semi-integration algorithms are quite similar, except the inverted peak for fast Riemann (purple) and the numerical integration (red) with an relative error, down to less then <span class="math">\(10^{-6}\)</span>.</p>
+<p><img alt="../test/data/images/Accuracy_x2.png" src="_images/Accuracy_full_x2.png" /></p>
+</section>
+<section id="full-integration-with-realistic-values">
+<h4>Full Integration with Realistic Values<a class="headerlink" href="#full-integration-with-realistic-values" title="Permalink to this heading"></a></h4>
+<p>The previous tests only consider the accuracy of simple functions. In order to investigate the accuracy at more realistic functions, a gaussian distribution function (by scipy.stats) will be used as input. To evaluate the relative error, the implemented algorithms are applied twice (i.e. ‘full’ integration) and are compared with the results of a numerical integration (by scipy.integrate).</p>
+<p>Since this case is more realistic than the previous one, the used code is given here step-by-step. First, all necessary packages need to be imported (i.e. numpy, scipy stats and scipy integrate). Afterwards, the x- &amp; y-vales are generated. As the step size is constant, delta can be calculated by the very first values. The resulting test function is displayed below the code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="nn">norm</span>
+<span class="kn">from</span> <span class="nn">ec_tools</span> <span class="kn">import</span> <span class="n">semi_integration</span> <span class="k">as</span> <span class="n">si</span>
+<span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">cumulative_trapezoid</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span> <span class="mi">1001</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">delta_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><img alt="../test/data/images/TestData.png" src="_images/TestData.png" /></p>
+<p>Now, the reference values are computed by the cumulative trapezoid method from scipy (numerical integration), like displayed below. In order to perform a ‘full’ integration (i.e. <span class="math">\(v=-1\)</span>) with the semi integration methods, each algorithm needs to be applied twice with <span class="math">\(v_1=v_2=-0.5\)</span>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">d_ref</span> <span class="o">=</span> <span class="n">cumulative_trapezoid</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">d1</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">fast_riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="n">d2</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">riemann</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">riemann</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="p">)</span>
+<span class="n">d3</span> <span class="o">=</span> <span class="n">si</span><span class="o">.</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">si</span><span class="o">.</span><span class="n">gruenwald</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">delta_x</span><span class="p">),</span> <span class="n">delta_x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These computed integrals (by scipy and by the implemented algorithms) are displayed below and show a wave-like function, as expected from the exemplary image in the fundamental section. Here it seems, that all graphs are nearly overlapping. To determine the real differences, the absolute and the relative errors have to be considered.</p>
+<p><img alt="../test/data/images/full_int.png" src="_images/full_int.png" /></p>
+<p>The following figure shows the absolute error for each algorithm in a semilogarithmic plot along the <span class="math">\(x\)</span>-values. It can be seen, that the absolute error increases for each algorithm up to <span class="math">\(x=5\)</span> and then decreases, except for the fast Riemann algorithm (red), which shows an sharp dip and a subsequent increase.</p>
+<p><img alt="../test/data/images/abserr_1000.png" src="_images/abserr_1000.png" /></p>
+<p>The relative error is displayed in the figure below. Here, the Riemann algorithm (cyan) has a relative high error in the very first steps and then behaves similar like the Gruenwald (magenta) algorithm by slowly decreasing and dropping at the end. The fast Riemann shows at first also a slow decrease, but then the inverted peak is again visible. This behavior is caused by the predefined <span class="math">\(c\)</span> parameters of that algorithm (like mentioned previously) and will be examined separately in a subsequent section.</p>
+<p><img alt="../test/data/images/relerr_1000.png" src="_images/relerr_1000.png" /></p>
+<p>The accuracy of these algorithms is more or less sufficient, depending on the relatively low number of steps. In order to consider larger sets, the similar setup is applied for <span class="math">\(10000\)</span> steps. Therefore, the next figure shows the resulting absolute error for each algorithm. Here, the error of fast Riemann (red) seems to by lower at the beginning and increase similarly, like in the case with <span class="math">\(1000\)</span> steps. Interestingly, the inverted peak is also visible, but this time shifted more to the left side. The Riemann (cyan) and the Gruenwald (magenta) also behave similarly to the previous test, but with lower errors.</p>
+<p><img alt="../test/data/images/abserr_10000.png" src="_images/abserr_10000.png" /></p>
+<p>The relative errors (next figure) for all algorithms seem to behave similar, compared to results with <span class="math">\(1000\)</span> steps. Only the overall error is shifted down to around one order and for fast Riemann (red) is the inverted peak visible on the left side.</p>
+<p><img alt="../test/data/images/relerr_10000.png" src="_images/relerr_10000.png" /></p>
+<p>The previous tests show, that the implemented Gruenwald algorithm provides the best results, regarding the accuracy with a maximum relative error of around 1e-02. The Riemann algorithm behaves similar, but unfortunately it has a high relative error in the very first steps. The relative error of the fast Riemann algorithm is in the same range, compared to the other algorithms, except the existence of an dip and a slightly error grow, regarding higher x-values. These tests only cover the accuracy regarding the absolute and relative error. Further tests need to be done, in order to see the full possibilities of each implemented algorithm.</p>
+</section>
+</section>
+<section id="functionality-test">
+<h3>Functionality Test<a class="headerlink" href="#functionality-test" title="Permalink to this heading"></a></h3>
+<p>In the previous part, the algorithms where tested by using the semi integration (<span class="math">\(v= - 0.5\)</span>). In general, the algorithms could also be used for other values of <span class="math">\(v\)</span>. The possible application of different v values depends on the type of implementation of the different algorithms. The Gruenwald algorithm for example are implemented in such a way that theoretically all values for v are possible. In sense of integration and differentiation, it only makes sense to limit <span class="math">\(v\)</span> to a range of <span class="math">\(-1 &lt; v &lt; 1\)</span>. The Riemann algorithm is more limited since the first divisor cannot be generalized, i.e. the possible settings are 0.5 and -0.5. For the fast Riemann Pajkossy set the applicable limit for <span class="math">\(v\)</span> (or <span class="math">\(q\)</span>) in <span id="id6">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span> to <span class="math">\(-1 &lt; q &lt; 0\)</span>.</p>
+<section id="semi-integration-parameter-test">
+<h4>Semi Integration Parameter Test<a class="headerlink" href="#semi-integration-parameter-test" title="Permalink to this heading"></a></h4>
+<p>The first test considers only the possible semi integrations, i.e. <span class="math">\(v &lt; 0\)</span>. Therefore, <span class="math">\(v\)</span> will be varied from -0.9 up to -0.1. The gaussian distribution will be used again as input, the ‘full’ numerical integration as reference and all algorithms were performed with 2000 steps. The following figure displays the computed semi integrals with the Gruenwald (G, green on left side) and the fast Riemann (FR, blue on right side) algorithm.</p>
+<p><img alt="../test/data/images/relerr_20000.png" src="_images/varying_semiint.png" /></p>
+<p>The figure above is separated in four plots. The first (top, left) shows the applied Gruenwald algorithm (green) with varying v and the “full” numerical integral (red) as reference. On the right top side are the resulting semi integrals for the implemented fast Riemann (blue).  The plots below show the same results, only in semi logarithmic view.</p>
+<p>Both algorithms allow to perform these kinds of semi integration, but the results are not comparable to each other, as the Gruenwald semi integrals are lower than the semi integrals from fast Riemann, except of course for v=-0.5. For both algorithms, the application with different v need to be used carefully, as the results cannot be validated, only v=-0.5 could be verified with the reference table from Oldham and the “full” numerical integral.</p>
+</section>
+<section id="semi-differentiation-test">
+<h4>Semi Differentiation Test<a class="headerlink" href="#semi-differentiation-test" title="Permalink to this heading"></a></h4>
+<p>The Gruenwald and the Riemann algorithm allow also a semi differentiation, i.e. <span class="math">\(v=0.5\)</span>. Fast Riemann has to be excluded due to the limitations stated in <span id="id7">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>. For the test, a fixed step size of 2000 and for the input values the computed result from the accuracy test are used, i.e. numerical integration of the gaussian distribution. With that, the ‘full’ differentiation should result in the gaussian distribution again. Therefore, the deviation between the gaussian distribution and the computed “double” semi differentiation are used to calculate the absolute error.</p>
+<p><img alt="../test/data/images/relerr_20000.png" src="_images/full_diff.png" /></p>
+<p>The image above shows three plots. The first (top) displays the gaussian distribution (red) as reference result (“full” differentiation from the wave-like function) and the computed differentiations by applying the semi differentiation (<span class="math">\(v=0.5\)</span>) twice with Riemann (blue) or twice with Gruenwald (cyan). It is obvious, that the Gruenwald differs strongly from the gaussian distribution (initial graph), while the Riemann graph seems to overlay on the initial graph. The next semi logarithmic plot (middle) contains the absolute error of both algorithms. Here, the error of Gruenwald is high over the whole range, while the absolute error of Riemann shows quite good results with a maximum of about <span class="math">\(3.7 \cdot 10^{-5}\)</span>.  In the last semi logarithmic plot (bottom), the relative error is shown, which has similar results. Gruenwald is out of range and Riemann shows still good results, only in the very first steps, the relative error is similar to its behavior like with the semi integrations.</p>
+<p>It is evident, that the Gruenwald algorithm is not applicable for semi differentiations, but still useful for the application of semi integrations. In contrast to that allows the Riemann algorithm quite good results for both applications, the semi integration and differentiation, under consideration of the deviations in the very first steps. Although the fast riemann cannot be applied for semi differentiations and does not have the best accuracy, it shows a big advantage in its significantly faster calculation, compared to the other algorithms. Therefore, a performance test should show what time savings are possible.</p>
+</section>
+<section id="parameter-test-for-fr-algorithm">
+<h4>Parameter Test for FR-Algorithm<a class="headerlink" href="#parameter-test-for-fr-algorithm" title="Permalink to this heading"></a></h4>
+<p>In the description of the fast Riemann algorithm from the fundamental section, the necessity of two parameters (C1, C2) was mentioned. These parameters have a direct influence on the accuracy and the resulting computation time. If the user does not define them, they are set by default to C1=8 and C2=2, as Pajkossy proposed in <span id="id8">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>. This setting was the result of an accuracy test in his paper by varying parameters, applied on a simulated cyclic voltammogram with 256 and 512 steps. The previous test shows, that the algorithm could be applied for more than 10 thousand steps. Therefore, it is necessary to check the influence of a parameter variation to the accuracy. Analogous to the first accuracy test, the functions <span class="math">\(f=c\)</span> (constant), <span class="math">\(x\)</span> and <span class="math">\(x^2\)</span> are used, including the respective semi-integration results.</p>
+<p><strong>Case 1: <span class="math">\(f=1\)</span> (constant)</strong></p>
+<p>Starting with <span class="math">\(x=0, ..., 10\)</span> and <span class="math">\(f=1\)</span>, the following figure shows on top the function (<span class="math">\(y=1\)</span>) and below a semi logarithmic plot with the relative error for <span class="math">\(1000\)</span> steps. Thereby, both parameters, <span class="math">\(C_1\)</span>and <span class="math">\(C_2\)</span> varies from <span class="math">\(1, 5, 10, 50\)</span> to <span class="math">\(100\)</span>.  Here the graph color change slowly from dark blue to bright green with increasing parameters.</p>
+<p><img alt="../test/data/images/FR_Para_C_1000.png" src="_images/FR_Para_C_1000.png" /></p>
+<p>It seems, that the relative error decreases with increasing number, but at the lowest error, two graphs show multiple of the inverted peaks, like is was observed in the first accuracy test. It must also be noted, that the computation time increases also with increasing parameters, which can be seen in detail in the double logarithmic plot below. For <span class="math">\(C_1,C_2\)</span> with <span class="math">\(1,1\)</span> setting it requires about <span class="math">\(2\)</span> ms and for <span class="math">\(100,100\)</span>, it needs up to <span class="math">\(10\)</span> seconds. The default setting (<span class="math">\(8,2\)</span>) is comparatively fast with <span class="math">\(17\)</span> ms and does not contain any inverted peaks.</p>
+<p><img alt="../test/data/images/FR_Para_C_1000_time.png" src="_images/FR_Para_C_1000_time.png" /></p>
+<p><strong>Case 2: <span class="math">\(f=x\)</span></strong></p>
+<p>In the next case with <span class="math">\(f=x\)</span> and the same setup like in case 1, the figure below shows on top the function (<span class="math">\(y=x\)</span>) and below the relative error in a semi logarithmic plot. Here arise the inverted peaks already with lower <span class="math">\(C_1\)</span> values (and a variety of <span class="math">\(C_2\)</span> values), while for higher <span class="math">\(C_1\)</span> values, the inverted peaks decrease.</p>
+<p><img alt="../test/data/images/FR_Para_x_1000.png" src="_images/FR_Para_x_1000.png" /></p>
+<p>Regarding the time performance (see next figure), it is nearly equal to the first case. The default setting (<span class="math">\(8,2\)</span>) is still comparatively fast with <span class="math">\(18\)</span> ms, but shows an inverted peak. A step by step approach shows, that the peak disappears at <span class="math">\(C_1:9\)</span> &amp; <span class="math">\(C_2:4\)</span>, which results in a computation time of <span class="math">\(38\)</span> ms.</p>
+<p><img alt="../test/data/images/FR_Para_x_1000_time.png" src="_images/FR_Para_x_1000_time.png" /></p>
+<p><strong>Case 3: <span class="math">\(f=x^2\)</span></strong></p>
+<p>The last case with <span class="math">\(f=x^2\)</span> (next figure, top) produces relative errors (next figure, below), which behaves quite similar to the previous case, i.e. the parameters have a strong influence to the quality of the computed values for all cases. In the case of higher <span class="math">\(C_1\)</span> values, the graphs seem even to flatten the inverted peak more.</p>
+<p><img alt="../test/data/images/FR_Para_x2_1000.png" src="_images/FR_Para_x2_1000.png" /></p>
+<p>The time performance (next figure) is still comparable to the previous cases. Similar to the second case, the default values are not sufficient to achieve a stable run without one or more inverted peaks. The setting with <span class="math">\(C_1:9\)</span> &amp; <span class="math">\(C_2:2\)</span> fulfills this requirement and requires <span class="math">\(20\)</span> ms.</p>
+<p><img alt="../test/data/images/FR_Para_x2_1000_time.png" src="_images/FR_Para_x2_1000_time.png" /></p>
+<p>The increase of the number of steps in the above examples leads to a left-shift of already existing inverted peaks, with the same C parameters. In addition, new peaks can form at higher <span class="math">\(C\)</span> values. For <span class="math">\(10\)</span> thousand steps, the setting of <span class="math">\(C_1:13\)</span> &amp; <span class="math">\(C_2:9\)</span> result with no formation of peaks, but it takes on average <span class="math">\(1.2\)</span> seconds. For the further testing, the default values (<span class="math">\(C1:8, C2:2\)</span>) are maintained.</p>
+</section>
+<section id="composition-test">
+<h4>Composition Test<a class="headerlink" href="#composition-test" title="Permalink to this heading"></a></h4>
+<p>The implemented algorithms are tested and compared with the results of one semi integral (<span class="math">\(v=-0.5\)</span>) and the ones from numerical integration (i.e. ‘full’ integration: <span class="math">\(v=-1\)</span>). In the latter case, we have taken the composition rule as given. For a ‘full’ integration or differentiation, the composition rule holds, meaning <span class="math">\(v = v_1+ v_2 + ... + v_n\)</span> with integer values for <span class="math">\(v_1, v_2, ..., v_n\)</span>. In general, this rule cannot be applied directly to semi integration or differentiation.</p>
+<p>Oldham mention in his book <span id="id9">[<a class="reference internal" href="#id14" title="Keith B. Oldham and Jerome Spanier. The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.">4</a>]</span> in chapter 5 the general properties of these semi operators, including the composition rule (ch. 5.7). Therein, he shows that for an arbitrary semi-integrable function the composition rule is not always necessarily applicable. The interested reader is referred to that chapter, especially table 5.7.2 and 5.7.3, which lists the restrictions of the composition rule.</p>
+<p>The implemented algorithms need to be tested with multiple compositions of <span class="math">\(v\)</span>. In the following cases, the function <span class="math">\(y = 1\)</span> (const) will be used, the numerical integration is taken as reference and a fixed step size of <span class="math">\(1000\)</span>. For these tests the limitation range for v has to be considered. For the Gruenwald algorithm is the range <span class="math">\(-1 &lt; v &lt; 0\)</span> and only variations of v can be considered, which add up to a total of <span class="math">\(-1\)</span> (‘full’ integration), e.g. <span class="math">\(v1 = -0.1\)</span> and <span class="math">\(v2 =-0.9\)</span>. As the Riemann algorithm in its current implemented state only allows <span class="math">\(v=-0.5\)</span> and 0.5, it will not further be considered in this testing.</p>
+<p><strong>Case 1: Double Semi Integration</strong></p>
+<p>As first test case the implemented algorithms will be applied twice with varying v values. Under consideration that v= v1 +v2 = -1 holds, v1 varies from -1 to 0 and v2 from 0 to -1, both in 0.001 steps. The following figure shows a double logarithmic plot of the relative error along the v1 (or v2-1) values for the Gruenwald algorithm. It can be seen, that all errors are near the machine precision, which means the algorithm can be used in that way.</p>
+<p><img alt="../test/data/images/double_varying_semiint_G.png" src="_images/double_varying_semiint_G.png" /></p>
+<p>The same setup is tested for the implemented fast Riemann algorithm and is displayed in the next figure. Here, the relative error is lowest for <span class="math">\(v_1=v_2=-0.5\)</span>, which is reasonable, as it was optimized for electroanalytical applications <span id="id10">[<a class="reference internal" href="#id15" title="T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. J. Electroanal. Chem. Interfacial Electrochem., 179(1):65–69, November 1984. doi:10.1016/S0022-0728(84)80275-2.">5</a>]</span>. Compared to the Gruenwald algorithm, the relative error is overall quite high, but similar to the previous testing, the accuracy is related to the number of steps (here <span class="math">\(1000\)</span>).</p>
+<p><img alt="../test/data/images/double_varying_semiint_FR.png" src="_images/double_varying_semiint_FR.png" /></p>
+<p><strong>Case 2: Triple and more Semi Integration</strong></p>
+<p>The previous case considers only the application of semi integration to times (e.g. with <span class="math">\(v1, v2=-0.5\)</span>). Now it should be checked whether triples and further compositions are possible. Both, the Gruenwald and the fast Riemann are applied for the following six scenarios: 3 times (<span class="math">\(v=0.3333\)</span>), 4 times (<span class="math">\(v=0.25\)</span>), 5 times (<span class="math">\(v=0.2\)</span>), 6 times (<span class="math">\(v=0.1667\)</span>), 8 times (<span class="math">\(v=0.125\)</span>) and 10 times (<span class="math">\(v=0.1\)</span>).</p>
+<p>The following figure shows for each mentioned scenario the relative error along the x- values for y=1 (const) with <span class="math">\(1000\)</span> steps. Here it is obvious, that the error is every time at a constant value (near 1), i.e. the application is not plausible.</p>
+<p><img alt="../test/data/images/triple_varying_semiint_G.png" src="_images/triple_varying_semiint_G.png" /></p>
+<p>Focused on the fast Riemann, the next image displays the relative error (here logarithmic) for the same case (<span class="math">\(y=1\)</span>, <span class="math">\(n=1000\)</span>). For each scenario, there are multiple inverted peaks, similar to the previous tests, which makes the overall error not valid.</p>
+<p><img alt="../test/data/images/triple_varying_semiint_FR_init.png" src="_images/triple_varying_semiint_FR_init.png" /></p>
+<p>The last composition test considers the fast Riemann again, but now with modified <span class="math">\(C_1\)</span> &amp; <span class="math">\(C2\)</span> values (<span class="math">\(10,10\)</span>). Here the resulting relative errors (figure below) don’t show anymore the inverted peaks. Except the last scenario, all others errors decrease steadily. Latter one shows slight disturbances, but still a decrease. All scenarios with the modified C values show quite reasonable errors (below <span class="math">\(-10^{-4}\)</span>), therefore a further investigation of these <span class="math">\(C\)</span> values is necessary.</p>
+<p><img alt="../test/data/images/triple_varying_semiint_FR_opt.png" src="_images/triple_varying_semiint_FR_opt.png" /></p>
+</section>
+</section>
 <section id="performance-test">
-<h2>Performance Test<a class="headerlink" href="#performance-test" title="Permalink to this heading"></a></h2>
-<p>TBA</p>
+<h3>Performance Test<a class="headerlink" href="#performance-test" title="Permalink to this heading"></a></h3>
+<p>The performance test is intended to provide an insight into the required computing time for the implemented algorithms. Beside the direct call of each implemented algorithm, a generalized call with the implemented “semi_integration” function allows to speed up the calculation with the help of the transonic package. This allows three different backends: Python, Numba and Pythran.</p>
+<p>In the following, the gaussian distribution was taken as input data and varying step size. The numerical integration (cumulative trapezoid) from the Scipy package was taken as reference. The following image displays the consumed time for each algorithm and the chosen backend in dependence of the number of elements (No. of step size).</p>
+<p><img alt="../benchmark/images/benchmark_time.png" src="_images/benchmark_time.png" /></p>
+<p>The time performance plot displays semi logarithmic the required time for the algorithm of Riemann (red), Gruenwald (blue) and for fast Riemann (green). The symbols define the chosen setting, i.e. with transonic backend Python (dot), Numba (cross) or Pythran (plus).</p>
+<p>The Riemann requires with all implementations the longest computation time, while the Gruenwald shows a better performance. Here the application of the <code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">pythran</span></code> backends allow to decrease the time up to two orders of magnitude, compared to the python backend. The fast Riemann shows the best performance and especially with the <code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">pythran</span></code> backend it seems to have nearly no time increase with the chosen element sizes.</p>
+<p><img alt="../benchmark/images/benchmark_abs_err.png" src="_images/benchmark_abs_err.png" /></p>
+<p>The next figure (above) shows the evolution of the maximum absolute error for each algorithm in a semilogarithmic plot. Here the color and symbols correspond to the ones in the time performance test. Generally, the calculated error should only depend on the algorithm and not on the chosen setting, which can be seen in the plot. The fast Riemann shows an increasing graph with the highest error, similar to the accuracy tests. Both, the Gruenwald and the Riemann show a decreasing absolute error. Related to that shows the Gruenwald the best absolute error behavior. Now it is still necessary to consider the relative error.</p>
+<p><img alt="../benchmark/images/benchmark_rel_err.png" src="_images/benchmark_rel_err.png" /></p>
+<p>Therefore, the figure above shows the maximum relative error plotted semi logarithmic along the number of elements. Colors and symbols still contain the same algorithms and settings. The relative error depends, similar to the absolute error, only on the chosen algorithm. The Riemann shows the worst error, as already observed in the accuracy test. The absolute error of the fast Riemann shows a much lower error, which decreases up to <span class="math">\(5000\)</span> elements and then increases slightly. The Gruenwald implementation shows the smallest relative error, which decreases with increasing elements.</p>
+</section>
 </section>
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
-<p><strong>[1]</strong> K.B. Oldham, <em>Electrochemical Science and Technology, John Wiley &amp; Sons Ltd, 2012</em></p>
-<p><strong>[2]</strong> T. Pajkossy, L. Nyikos, <em>Fast algorithm for differintegration</em>, J. Electroanal. Chem. 179, 1984</p>
-<p><strong>[3]</strong> Gruenwald, A.K. Uber, <em>“begrenzte” Derivationen und deren Anwendungen der Integration und Differentiation.</em> In Z. Angew. Math. und Phys. 1867, 12, 441-480</p>
-<p><strong>[4]</strong> Riemann, B. et al. in <em>Versuch einer allgemeinen Auffassung der Integration und Differentiation</em>, Gesammelte Werke, published posthumously, Teubner, Leipzig, 1892, pp. 353-366</p>
+<div class="docutils container" id="id11">
+<div class="citation" id="id16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">1</a><span class="fn-bracket">]</span></span>
+<p>Richard Dedekind and Heinrich Martin Weber, editors. <em>Versuch einer allgemeinen Auffassung der Integration und Differentiation. (1847.)</em>, pages 331–344. Cambridge University Press, 1 edition, October 2013. <a class="reference external" href="https://doi.org/10.1017/CBO9781139568050.020">doi:10.1017/CBO9781139568050.020</a>.</p>
+</div>
+<div class="citation" id="id12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>AK Grünwald. Über &quot;begrenzte&quot; Derivation und deren Anwendung. <em>Z. Angew. Math. Phys.</em>, 12:441–480, 1867.</p>
+</div>
+<div class="citation" id="id13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id4">2</a>,<a role="doc-backlink" href="#id5">3</a>,<a role="doc-backlink" href="#id7">4</a>,<a role="doc-backlink" href="#id8">5</a>,<a role="doc-backlink" href="#id1">6</a>,<a role="doc-backlink" href="#id1">7</a>)</span>
+<p>Keith B. Oldham, Jan C. Myland, and Alan Maxwell Bond. <em>Electrochemical Science and Technology: Fundamentals and Applications</em>. Wiley, Chichester, reprinted with corrections edition, 2013. ISBN 978-0-470-71085-2 978-0-470-71084-5 978-1-119-96588-6 978-1-119-96599-2.</p>
+</div>
+<div class="citation" id="id14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id1">2</a>,<a role="doc-backlink" href="#id3">3</a>,<a role="doc-backlink" href="#id4">4</a>,<a role="doc-backlink" href="#id5">5</a>,<a role="doc-backlink" href="#id9">6</a>)</span>
+<p>Keith B. Oldham and Jerome Spanier. <em>The Fractional Calculus: Theory and Applications of Differentiation and Integration to Arbitrary Order</em>. Dover Books on Mathematics. Dover Publ, Mineola, NY, dover ed edition, 2006. ISBN 978-0-486-45001-8.</p>
+</div>
+<div class="citation" id="id15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id9">3</a>,<a role="doc-backlink" href="#id1">4</a>,<a role="doc-backlink" href="#id6">5</a>,<a role="doc-backlink" href="#id7">6</a>,<a role="doc-backlink" href="#id8">7</a>,<a role="doc-backlink" href="#id10">8</a>)</span>
+<p>T. Pajkossy and L. Nyikos. Fast algorithm for differintegration. <em>J. Electroanal. Chem. Interfacial Electrochem.</em>, 179(1):65–69, November 1984. <a class="reference external" href="https://doi.org/10.1016/S0022-0728(84)80275-2">doi:10.1016/S0022-0728(84)80275-2</a>.</p>
+</div>
+</div>
+</div>
 </section>
 </section>
 

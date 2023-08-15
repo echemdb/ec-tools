@@ -8,7 +8,7 @@
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css" type="text/css" />
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" type="text/css" />
       <link rel="stylesheet" href="_static/katex-math.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
@@ -85,7 +85,7 @@
              
   <section id="welcome-to-the-ec-tools-documentation">
 <h1>Welcome to the ec-tools documentation !<a class="headerlink" href="#welcome-to-the-ec-tools-documentation" title="Permalink to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> library is a collection of tools which can be useful when working with electrochemical data such as cyclic voltammetry. One non-trivial example is the implementation of algorithms to compute the semi integrals which eventually allows for the elegant analysis of diffusion controlled electrochemical process such as electron transfer reactions from cyclic voltammetry data.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> library is a collection of tools which can be useful while working with electrochemical data such as cyclic voltammetry. One non-trivial example is the implementation of algorithms to compute the semi integrals which eventually allows for the elegant analysis of diffusion controlled electrochemical processes such as electron transfer reactions from cyclic voltammetry data.</p>
 </section>
 <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
@@ -93,7 +93,8 @@
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/echemdb/ec-tools
 </pre></div>
 </div>
-<p>Read the <a class="reference internal" href="installation.html"><span class="doc std std-doc">installation instructions</span></a> on further details if you want to contribute to the project.</p>
+<p>To speed up heavy computations, e.g. semi integrations, it is advised to install <code class="docutils literal notranslate"><span class="pre">pythran</span></code> or <code class="docutils literal notranslate"><span class="pre">numba</span></code> as backend.</p>
+<p>Read the <a class="reference internal" href="installation.html"><span class="doc std std-doc">installation instructions</span></a> for further details.</p>
 <div class="toctree-wrapper compound">
 </div>
 </section>
