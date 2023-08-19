@@ -71,7 +71,7 @@ def determine_scan_rate(t, x):
 
 
 def find_extrema_indeces(y, mode="all"):
-    """Return the indexes of limits of cyclic voltammetry.
+    """Return the indexes of the reversal points of cyclic voltammetry.
 
     Workaround for Windows platform:
     list(array([...], dtype=int64))
