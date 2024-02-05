@@ -132,6 +132,7 @@ which is set to :math:`c_1=8, c_2=2` by default, as recommended by Pajkossy. Wit
 Here, :math:`R` represents the calculated semi integral, i.e. :math:`R \approx \frac{\mathrm{d}^{v}}{\mathrm{d}t^{v}} I(t)`.
 
 """
+
 import numpy as np
 from transonic import jit
 
