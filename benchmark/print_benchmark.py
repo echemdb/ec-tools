@@ -1,13 +1,12 @@
 r"""
-Load computed benchmark results and generates performance test plots 
+Load computed benchmark results and generates performance test plots
 for each algorithm with different speed up.
 """
-
 import sys
-import pandas as pd
-import matplotlib.pyplot as plt
 
-# Define FIGNAME
+import matplotlib.pyplot as plt
+import pandas as pd
+
 if len(sys.argv) == 2:
     FIGNAME = sys.argv[1]
 else:

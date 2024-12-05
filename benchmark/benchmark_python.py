@@ -6,10 +6,12 @@ r"""
 
 import sys
 import time
+
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 from scipy.integrate import cumulative_trapezoid
+from scipy.stats import norm
+
 from ec_tools import semi_integration as si
 
 # Define file name of export csv

@@ -1,14 +1,14 @@
 r"""
-Create images to visualize the accuracy of semi integration algorithms 
+Create images to visualize the accuracy of semi integration algorithms
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
-from scipy.special import zeta
+import numpy as np
 from scipy.integrate import cumulative_trapezoid
-from ec_tools import semi_integration as si
+from scipy.special import zeta
+from scipy.stats import norm
 
+from ec_tools import semi_integration as si
 
 # define which set of images should be ploted and saved
 PRINT_ACCURACY_SEMI = False

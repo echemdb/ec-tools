@@ -1,13 +1,13 @@
 r"""
-Create images to visualize the semi integration 
+Create images to visualize the semi integration
 """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
+import numpy as np
 from scipy.integrate import cumulative_trapezoid
-from ec_tools import semi_integration as si
+from scipy.stats import norm
 
+from ec_tools import semi_integration as si
 
 # define values as gaussian curve
 x = np.linspace(0, 10, 1000)

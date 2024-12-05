@@ -1,11 +1,13 @@
 r"""
-Create images to visualize the semi integration 
+Create images to visualize the semi integration
 """
 import time
-import numpy as np
+
 import matplotlib.pyplot as plt
-from scipy.stats import norm
+import numpy as np
 from scipy.integrate import cumulative_trapezoid
+from scipy.stats import norm
+
 from ec_tools import semi_integration as si
 
 # define which set of images should be ploted and saved

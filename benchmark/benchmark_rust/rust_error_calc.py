@@ -5,10 +5,11 @@ r"""
 """
 
 import sys
+
 import numpy as np
 import pandas as pd
-from scipy.stats import norm
 from scipy.integrate import cumulative_trapezoid
+from scipy.stats import norm
 
 if len(sys.argv) == 2:
     FILENAME = sys.argv[1]
@@ -32,7 +33,7 @@ for i in range(0, len(df["N"])):
     N = df["N"][i]
     # generate test values
     t = np.linspace(0, 8, N + 1)
-    I = norm.pdf(t, 4, 1)
+    I = norm.pdf(t, 4, 1) # noqa: E741
 
     # with default values
     # Reference values
