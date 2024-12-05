@@ -18,3 +18,11 @@ version = "0.0.1"
 
 [tool.setuptools]
 license-files = ["LICENSE"]  # Keep in sync with setup.cfg
+
+[tool.ruff]
+lint.select = ["E", "F", "W", "B"]
+lint.ignore = [
+    "B905",
+]
+lint.fixable = ["E", "F", "W", "B"]
+line-length = 115

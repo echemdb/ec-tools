@@ -1,25 +1,22 @@
-name: ec-tools-dev
+name: ec-tools
 channels:
   - conda-forge
-  - defaults
 dependencies:
-  - black
-  - isort
+  - linkchecker
   - myst-parser
   - myst-nb
   - numba
   - numpy
   - pip
-  - pylint
   - pytest
   - pytest-doctestplus
   - pythran
+  - ruff
   - scipy
   - sphinx
   - sphinxcontrib-bibtex
   - sphinx-autobuild
+  - sphinx_rtd_theme
   - transonic
   - pip:
-    - linkchecker
-    - sphinx_rtd_theme
     - sphinxcontrib.katex
