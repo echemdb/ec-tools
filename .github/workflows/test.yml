@@ -22,6 +22,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "${{ matrix.python }}"
+          variant: miniforge
       - name: install dependencies
         shell: bash -l {0}
         run: |
