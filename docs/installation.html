@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; ec-tools 0.0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
       <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" />
@@ -92,14 +92,13 @@
              
   <section id="installation">
 <h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h1>
-<p>The recommended way to install the <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> package is to use a separate python environment. There are several ways to setup an envirornment. Since we are using <code class="docutils literal notranslate"><span class="pre">conda</span></code>/<code class="docutils literal notranslate"><span class="pre">mamba</span></code> to manage the environments we will limit the explanation to this approach here. After installing mambaforge (see https://mamba.readthedocs.io/en/latest/index.html) a conda environment named <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> can be created by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>create<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>-n<span class="w"> </span>ec-tools<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>pip<span class="w"> </span>numba<span class="w"> </span>pythran
+<p>The recommended way to install the <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> package is to use a separate python environment. There are several ways to setup an envirornment. Since we are using <code class="docutils literal notranslate"><span class="pre">pixi</span></code> to manage the environments we will limit the explanation mostly to this approach here. After installing pixi (see https://pixi.sh/latest) <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> can be used inside a environment initialized with:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>shell<span class="w"> </span>-e<span class="w"> </span>opt
 </pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">pythran</span></code> are installed to allow the speedup of computationally intensive operations, such as semi integration. However, <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> runs also without them.</p>
-<p><code class="docutils literal notranslate"><span class="pre">ec-tool</span></code> can be installed in the new created environment by:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>activate<span class="w"> </span>ec-tools
-pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/echemdb/ec-tools
+<p>The <code class="docutils literal notranslate"><span class="pre">opt</span></code> environment includes the <code class="docutils literal notranslate"><span class="pre">numba</span></code> and <code class="docutils literal notranslate"><span class="pre">pythran</span></code> packages to allow the speedup of computationally intensive operations, such as semi integration. However, <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> runs also without them when <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">opt</span></code> is omitted.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ec-tool</span></code> can also be installed by pip:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/echemdb/ec-tools
 </pre></div>
 </div>
 <p>This command downloads and installs <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> (from github) and its dependencies into
@@ -117,33 +116,23 @@ pip install git+https://github.com/echemdb/ec-tools@main
 ``` -->
 <section id="install-for-development">
 <h2>Install for development<a class="headerlink" href="#install-for-development" title="Link to this heading"></a></h2>
-<p>If you want to work on the ec-tools itself, get a copy of the latest
+<p>If you want to work on the <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> itself, get a copy of the latest
 version of the ec-tools:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/echemdb/ec-tools.git
-</pre></div>
-</div>
-<p>Create the development environment from the provided <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ec-tools
-mamba<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
-</pre></div>
-</div>
-<p>Install <code class="docutils literal notranslate"><span class="pre">ec-tools</span></code> in editable mode <a class="reference external" href="https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs">editable</a>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mamba<span class="w"> </span>activate<span class="w"> </span>ec-tools-dev
-pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>shell<span class="w"> </span>-e<span class="w"> </span>dev
 </pre></div>
 </div>
 <p>Any changes you make to the files in your local copy of the ec-tools should
 now be available in your next Python session.</p>
 <section id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h3>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>--doctest-modules<span class="w"> </span>ec_tools
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>run<span class="w"> </span>doctest
 </pre></div>
 </div>
 </section>
 <section id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h3>
 <p>While working on the documentation it is sometimes convenient to have hot reload the documentation in the browser on change, which can be enabled by using <code class="docutils literal notranslate"><span class="pre">sphinx-autobuild</span></code>.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>sphinx-autobuild<span class="w"> </span>doc<span class="w"> </span>doc/generated/html<span class="w"> </span>--watch<span class="w"> </span><span class="s2">&quot;ec_tools/*&quot;</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>run<span class="w"> </span>doc-watch
 </pre></div>
 </div>
 <p>Open <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000</span></code> in the browser</p>
@@ -163,7 +152,7 @@ now be available in your next Python session.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, the ec-tools authors.</p>
+    <p>&#169; Copyright 2023-2025, the ec-tools authors.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

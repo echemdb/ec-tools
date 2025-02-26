@@ -1,17 +1,16 @@
 Installation
 ============
 
-The recommended way to install the `ec-tools` package is to use a separate python environment. There are several ways to setup an envirornment. Since we are using `conda`/`mamba` to manage the environments we will limit the explanation to this approach here. After installing mambaforge (see https://mamba.readthedocs.io/en/latest/index.html) a conda environment named `ec-tools` can be created by:
+The recommended way to install the `ec-tools` package is to use a separate python environment. There are several ways to setup an envirornment. Since we are using `pixi` to manage the environments we will limit the explanation mostly to this approach here. After installing pixi (see https://pixi.sh/latest) `ec-tools` can be used inside a environment initialized with:
 
 ```sh
-mamba create -c conda-forge -n ec-tools python=3.11 pip numba pythran
+pixi shell -e opt
 ```
-The `numba` and `pythran` are installed to allow the speedup of computationally intensive operations, such as semi integration. However, `ec-tools` runs also without them.
+The `opt` environment includes the `numba` and `pythran` packages to allow the speedup of computationally intensive operations, such as semi integration. However, `ec-tools` runs also without them when `-e opt` is omitted.
 
-`ec-tool` can be installed in the new created environment by:
+`ec-tool` can also be installed by pip:
 
 ```sh .noeval
-mamba activate ec-tools
 pip install git+https://github.com/echemdb/ec-tools
 ```
 
@@ -37,24 +36,11 @@ pip install git+https://github.com/echemdb/ec-tools@main
 Install for development
 --------------------------------
 
-If you want to work on the ec-tools itself, get a copy of the latest
+If you want to work on the `ec-tools` itself, get a copy of the latest
 version of the ec-tools:
 
 ```sh .noeval
-git clone https://github.com/echemdb/ec-tools.git
-```
-
-Create the development environment from the provided `environment.yml`:
-```sh .noeval
-cd ec-tools
-mamba create -f environment.yml
-```
-
-Install `ec-tools` in editable mode [editable](https://pip.pypa.io/en/stable/cli/pip_install/#editable-installs):
-
-```sh
-mamba activate ec-tools-dev
-pip install -e .
+pixi shell -e dev
 ```
 
 Any changes you make to the files in your local copy of the ec-tools should
@@ -63,7 +49,7 @@ now be available in your next Python session.
 ### Testing
 
 ```sh
-pytest --doctest-modules ec_tools
+pixi run doctest
 ```
 
 ### Documentation
@@ -71,7 +57,7 @@ pytest --doctest-modules ec_tools
 While working on the documentation it is sometimes convenient to have hot reload the documentation in the browser on change, which can be enabled by using `sphinx-autobuild`.
 
 ```sh
-sphinx-autobuild doc doc/generated/html --watch "ec_tools/*"
+pixi run doc-watch
 ```
 
 Open `http://127.0.0.1:8000` in the browser
