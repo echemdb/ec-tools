@@ -27,6 +27,7 @@ python-310 = ["test", "python-310"]
 python-311 = ["test", "python-311"]
 python-312 = ["test", "python-312"]
 python-313 = ["test", "python-313"]
+benchmark = ["opt"]
 dev = ["dev", "doc", "test", "benchmark", "lint"]
 
 [tool.pixi.dependencies]
@@ -62,6 +63,10 @@ scipy = "*"
 [tool.pixi.feature.test.tasks]
 doctest = "pytest -n auto --doctest-modules ec_tools"
 
+[tool.pixi.feature.opt.dependencies]
+numba = "*"
+pythran = "*"
+
 [tool.pixi.feature.benchmark.dependencies]
 scipy = "*"
 
@@ -92,6 +97,7 @@ sphinxcontrib-bibtex = "*"
 
 [tool.pixi.feature.doc.tasks]
 doc = "cd doc && make html SPHINXOPTS='-W -n --keep-going'"
+doc-watch = "sphinx-autobuild doc doc/generated/html --watch 'ec_tools/*'"
 linkcheck = "cd doc && make linkcheck"
 
 [tool.pixi.feature.dev.dependencies]
