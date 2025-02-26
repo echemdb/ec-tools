@@ -1,5 +1,5 @@
 project = "ec-tools"
-copyright = "2023, the ec-tools authors"
+copyright = "2023-2025, the ec-tools authors"
 author = "the ec-tools authors"
 
 release = "0.0.1"
@@ -16,7 +16,6 @@ bibtex_bibfiles = ["refs.bib"]
 
 bibtex_default_style = "plain"
 bibtex_reference_style = "label"
-
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -39,6 +38,8 @@ exclude_patterns = [
 todo_include_todos = True
 
 html_theme = "sphinx_rtd_theme"
+
+nb_execution_timeout = 90
 
 html_static_path = []
 

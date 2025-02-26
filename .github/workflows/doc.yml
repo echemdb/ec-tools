@@ -25,10 +25,8 @@ jobs:
           mv generated/html_ generated/html/ec_tools
           touch generated/html/ec_tools/.nojekyll
       - name: detect broken links
-        shell: bash -l {0}
-        run: |
-          cd doc
-          make linkcheck
+        shell: pixi run bash -e {0}
+        run: pixi run linkcheck
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

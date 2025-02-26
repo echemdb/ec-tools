@@ -53,16 +53,20 @@ python = "3.13.*"
 
 [tool.pixi.feature.test.dependencies]
 numba = "*"
-pythran = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-doctestplus = "*"
-
-[tool.pixi.feature.benchmark.dependencies]
+pythran = "*"
 scipy = "*"
 
 [tool.pixi.feature.test.tasks]
 doctest = "pytest -n auto --doctest-modules ec_tools"
+
+[tool.pixi.feature.benchmark.dependencies]
+scipy = "*"
+
+[tool.pixi.feature.benchmark.tasks]
+benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
 ruff = ">=0.9.7,<0.10"
@@ -88,6 +92,7 @@ sphinxcontrib-bibtex = "*"
 
 [tool.pixi.feature.doc.tasks]
 doc = "cd doc && make html SPHINXOPTS='-W -n --keep-going'"
+linkcheck = "cd doc && make linkcheck"
 
 [tool.pixi.feature.dev.dependencies]
 pip = "*"
