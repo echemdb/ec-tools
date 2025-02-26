@@ -9,45 +9,26 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: { submodules: recursive }
-      - name: setup conda environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          variant: miniforge
-      - name: install dependencies
-        shell: bash -l {0}
-        run: |
-          conda env update --quiet -n test -f environment.yml
-          conda list
-      - name: install ec_tools
-        shell: bash -l {0}
-        run: |
-          pip install -e .
+      - uses: prefix-dev/setup-pixi@v0.8.3
+        with: { pixi-version: v0.41.4 }
       - name: build documentation
-        shell: bash -l {0}
         run: |
+          pixi run doc
           cd doc
-          make html
           mv generated/html generated/html_
           mkdir generated/html
           mv generated/html_ generated/html/ec_tools
           touch generated/html/ec_tools/.nojekyll
-      - name: fix permissions
-        shell: bash -l {0}
-        run: |
-          # Strangely, the linkchecker modules are installed writable and linkchecker then refuses to load them.
-          chmod -R a-w `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
       - name: detect broken links
         shell: bash -l {0}
         run: |
-          python -m http.server 8880 --directory doc/generated/html &
-          sleep 1
-          # repology.org only passes the check locally but not in the Github CI. see #169
-          linkchecker --check-extern http://localhost:8880/ec_tools/ --ignore-url="https://repology.org/*" --no-warnings
+          cd doc
+          make linkcheck
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

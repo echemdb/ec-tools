@@ -12,35 +12,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python: ["3.9", "3.10", "3.11", "3.12"]
+        environment: ["python-39", "python-310", "python-311", "python-312", "python-313"]
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        source: ["conda", "pip"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with: { submodules: recursive }
-      - name: setup conda environment
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: "${{ matrix.python }}"
-          variant: miniforge
-      - name: install dependencies
-        shell: bash -l {0}
-        run: |
-          conda env update --quiet -n test -f environment.yml
-          conda list
-        if: ${{ matrix.source == 'conda' }}
-      - name: install ec-tools
-        shell: bash -l {0}
-        run: |
-          pip install --no-dependencies .
-        if: ${{ matrix.source == 'conda' }}
-      - name: install ec-tools
-        shell: bash -l {0}
-        run: |
-          pip install .
-        if: ${{ matrix.source == 'pip' }}
+      - uses: prefix-dev/setup-pixi@v0.8.3
+        with: { pixi-version: v0.41.4 }
       - name: doctest
-        shell: bash -l {0}
-        run: |
-          pytest --doctest-modules ec_tools
-        if: ${{ matrix.source == 'conda' }}
+        shell: pixi run bash -e {0}
+        run: pixi run -e ${{ matrix.environment }} doctest
