@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
 
 [project]
 name = "ec-tools"
@@ -12,7 +12,9 @@ dependencies    = [
     "numpy",
     "transonic",
 ]
-version = "0.0.1"
+dynamic = ["version"]
+[tool.maturin]
+features = ["pyo3/extension-module"]
 
 [tool.setuptools]
 packages = ["ec_tools",]
