@@ -8,11 +8,8 @@ classifiers = ["License :: OSI Approved :: GNU General Public License v3 or late
 description = "tools to work with electrochemical data"
 readme      = "README.md"
 requires-python = ">=3.9.0"
-dependencies    = [
-    "numpy",
-    "transonic",
-]
-version = "0.0.1"
+dependencies    = [ "numpy", "transonic" ]
+version = "0.1.0"
 
 [tool.setuptools]
 packages = ["ec_tools",]
@@ -31,8 +28,8 @@ benchmark = ["opt"]
 dev = ["dev", "doc", "test", "benchmark", "lint"]
 
 [tool.pixi.dependencies]
-numpy = "*"
-transonic = "*"
+numpy = ">=2.0.2,<3"
+transonic = ">=0.7.2,<0.8"
 
 [tool.pixi.pypi-dependencies]
 ec-tools = { path = ".", editable = true }
@@ -74,7 +71,7 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.9.7,<0.10"
+ruff = ">=0.11.13,<0.12"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
