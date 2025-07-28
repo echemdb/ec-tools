@@ -10,6 +10,12 @@ The package can be installed via
 ```sh
 pip install git+https://github.com/echemdb/ec-tools
 ```
+or with a new separate pixi environment
+```sh
+git clone https://github.com/echemdb/ec-tools
+cd ec-tools
+pixi shell
+```
 
 Overwiew
 ============
