@@ -1,0 +1,15 @@
+[package]
+name = "ec-tools"
+version = "0.1.0"
+edition = "2024"
+
+# [package.metadata.maturin]
+# name = "ec_tools.semi_integration_rs"
+
+[dependencies]
+pyo3 = { version = "^0.24", features = ["extension-module"] }
+numpy = "^0.24"
+
+[lib]
+name = "ec_tools"
+crate-type = ["cdylib"]
