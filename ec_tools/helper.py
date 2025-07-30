@@ -55,6 +55,46 @@ def find_x0_values(x, y, mode="all"):
     return np.sort(np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]]))
 
 
+def find_extrema_indeces(y, mode="all"):
+    """Return the indeces of the extrema of an array which holds values of a periodical linearly changing signal.
+    The `mode` determines if the positive `pos`, negative `neg`, or `all` extrema are returned.
+    One example for such a signal is the potential in cyclic voltammetry, a electrochemical method.
+
+    TEST:
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12,
+    ... 0.13, 0.14])
+    >>> find_extrema_indeces(E)
+    array([ 5, 11])
+
+    >>> find_extrema_indeces(E, mode="pos")
+    array([5])
+    """
+    signs = np.diff(np.sign(np.diff(y)))
+
+    if mode == "all":
+        extrema = np.where((signs == 2) | (signs == -2))[0]
+    elif mode == "pos":
+        extrema = np.where(signs == -2)[0]
+    elif mode == "neg":
+        extrema = np.where(signs == 2)[0]
+
+    return extrema + 1
+
+
+def local_scan_rates(t, x):
+    """Return scan rate of given t and x arrays.
+
+    TEST:
+    >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
+    >>> local_scan_rates(t, E)
+    array([0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
+               0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005])
+    """
+
+    return np.abs(np.diff(x) / np.diff(t))
+
+
 def determine_scan_rate(t, x):
     """Return scan rate of given t and x arrays.
 
@@ -66,7 +106,31 @@ def determine_scan_rate(t, x):
     0.005
     """
 
-    return np.abs(np.diff(x) / np.diff(t)).mean()
+    return local_scan_rates(t, x).mean()
+
+
+def detect_voltammetric_measurement(t, x, threshold=0.05):
+    """Probe if potential values obey the rules for potential scan experiments such as cyclic voltammetry.
+    Default threshold is 5 percent of scan rate.
+
+    TODO::
+
+    TEST:
+    >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
+    >>> detect_voltammetric_measurement(t, E)
+    True
+
+    # Potential step measurement
+    >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
+    >>> E = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26,])
+    >>> detect_voltammetric_measurement(t, E)
+    False
+    """
+
+    local_rates = local_scan_rates(t, x)
+    mean_scan_rate = local_rates.mean()
+    return (np.abs(local_rates / mean_scan_rate) - 1 < threshold).all()
 
 
 def detect_step(t, x):

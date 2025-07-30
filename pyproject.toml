@@ -67,7 +67,7 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.11.13,<0.12"
+ruff = ">=0.12.5,<0.13"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
