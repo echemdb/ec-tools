@@ -81,12 +81,13 @@ def find_extrema_indeces(y, mode="all"):
     return extrema + 1
 
 
-def local_scan_rates(t, x):
-    """Return scan rate of given t and x arrays.
+def discrete_scan_rates(t, x):
+    """Return array of discrete scan rates of given t and x arrays.
 
     TEST:
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
-    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12,
+    ... 0.13, 0.14])
     >>> local_scan_rates(t, E)
     array([0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005,
                0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005])
@@ -106,31 +107,33 @@ def determine_scan_rate(t, x):
     0.005
     """
 
-    return local_scan_rates(t, x).mean()
+    return discrete_scan_rates(t, x).mean()
 
 
-def detect_voltammetric_measurement(t, x, threshold=0.05):
-    """Probe if potential values obey the rules for potential scan experiments such as cyclic voltammetry.
+def detect_voltammetric_measurement(t, E, threshold=0.05):
+    """Probe if the potential is composed by linear potential sweeps which is the case for cyclic voltammetry.
     Default threshold is 5 percent of scan rate.
 
     TODO::
+     - not working for data with multiple parts having different scan rates
 
     TEST:
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
-    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12,
+    ... 0.13, 0.14])
     >>> detect_voltammetric_measurement(t, E)
     True
 
     # Potential step measurement
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
-    >>> E = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26,])
+    >>> E = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26])
     >>> detect_voltammetric_measurement(t, E)
     False
     """
 
-    local_rates = local_scan_rates(t, x)
-    mean_scan_rate = local_rates.mean()
-    return (np.abs(local_rates / mean_scan_rate) - 1 < threshold).all()
+    discrete_rates = discrete_scan_rates(t, E)
+    mean_scan_rate = discrete_rates.mean()
+    return (np.abs(discrete_rates / mean_scan_rate) - 1 < threshold).all()
 
 
 def detect_step(t, x):
