@@ -187,14 +187,14 @@ def detect_voltammetric_measurement(t, E, threshold=0.05):
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
     >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12,
     ... 0.13, 0.14])
-    >>> detect_voltammetric_measurement(t, E)
-    np.True_
+    >>> bool(detect_voltammetric_measurement(t, E))
+    True
 
     # Potential step measurement
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
     >>> E = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26])
-    >>> detect_voltammetric_measurement(t, E)
-    np.False_
+    >>> bool(detect_voltammetric_measurement(t, E))
+    False
     """
 
     discrete_rates = discrete_scan_rates(t, E)
