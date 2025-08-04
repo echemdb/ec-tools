@@ -47,6 +47,7 @@ python = "3.13.*"
 
 [tool.pixi.feature.test.dependencies]
 numba = "*"
+pandas = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-doctestplus = "*"
@@ -55,6 +56,7 @@ scipy = "*"
 
 [tool.pixi.feature.test.tasks]
 doctest = "pytest -n auto --doctest-modules ec_tools"
+test = "pytest"
 
 [tool.pixi.feature.opt.dependencies]
 numba = "*"
@@ -106,3 +108,13 @@ lint.ignore = [
 ]
 lint.fixable = ["E", "F", "W", "B"]
 line-length = 115
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+pythonpath = [
+    "ec_tools"
+]
