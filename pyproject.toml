@@ -47,6 +47,7 @@ python = "3.13.*"
 
 [tool.pixi.feature.test.dependencies]
 numba = "*"
+pandas = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-doctestplus = "*"
@@ -55,6 +56,7 @@ scipy = "*"
 
 [tool.pixi.feature.test.tasks]
 doctest = "pytest -n auto --doctest-modules ec_tools"
+test = "pytest"
 
 [tool.pixi.feature.opt.dependencies]
 numba = "*"
@@ -67,7 +69,7 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.11.13,<0.12"
+ruff = ">=0.12.5,<0.13"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
@@ -77,8 +79,10 @@ lint = { depends-on = ["pylint", "black", "isort"]  }
 
 [tool.pixi.feature.doc.dependencies]
 jupytext = "*"
+matplotlib-base = "*"
 myst-parser = "*"
 myst-nb = "*"
+scipy = "*"
 sphinx = "*"
 sphinx-autobuild = "*"
 sphinx-design = "*"
@@ -104,3 +108,13 @@ lint.ignore = [
 ]
 lint.fixable = ["E", "F", "W", "B"]
 line-length = 115
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests"
+]
+pythonpath = [
+    "ec_tools"
+]

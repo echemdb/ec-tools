@@ -5,7 +5,7 @@ jupytext:
     extension: .md
     format_name: myst
     format_version: 0.13
-    jupytext_version: 1.13.6
+    jupytext_version: 1.17.2
 kernelspec:
   display_name: Python 3 (ipykernel)
   language: python
@@ -41,4 +41,5 @@ Read the [installation instructions](installation.md) for further details.
 :hidden:
 installation.md
 semiint.md
+api.md
 ```
