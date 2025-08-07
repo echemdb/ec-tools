@@ -83,11 +83,11 @@ The following table shows the results for the chosen cases.
 
 
 
-![../test/data/images/semi_results.png](../test/data/images/semi_results.png) 
+![../tests/data/images/semi_results.png](../tests/data/images/semi_results.png) 
 
 Furthermore, Oldham provides in his book {cite:p}`oldham_fractional_2006` in chapter 8.2 a table (8.2.1), which gives the relative errors for different semi-integration algorithms. The next table provides these expected relative errors for our implemented algorithms (G1: Gruenwald; R1: Riemann). There, {math}`ζ` is the Riemann zeta function, which is already implemented in scipy.special.zeta. For Riemann, the relative error applies only for semi-integration (i.e. {math}`q<0`).
 
-![../test/data/images/semi_err.png](../test/data/images/semi_err.png) 
+![../tests/data/images/semi_err.png](../tests/data/images/semi_err.png) 
 
 
 **Test 1:** {math}`f=1` (constant)
@@ -99,20 +99,20 @@ The Riemann algorithm (blue) shows a similiar decrease of the relative error, bu
 The lower limit for Rieman is not displayed here, as it should be zero (i.e. exact) for this case.
 The purple curve displays the result of the fast Riemann, which shows first a stronger decrease but then it increases slightly.
 
-![../test/data/images/Accuracy_C.png](../test/data/images/Accuracy_C.png) 
+![../tests/data/images/Accuracy_C.png](../tests/data/images/Accuracy_C.png) 
 
 **Test 2:** {math}`f=x`
 
 The next test covers the application on {math}`f=x` with same other settings as before. The Riemann algorithm (blue) reaches in this case already the machine precision ({math}`\varepsilon_{f64}=2.22 \cdot 10^{-16} `), i.e. it is as accurate as possible with f64 floats. The Gruenwald algorithm (green) reduces down to {math}`10^{-3}` and seems to reach the predicted limit (red). The fast Riemann (purple) shows a strange behavior. At first the relative error decreases, drops sharply and, increases again. This so-called inverted peak will be discussed later, as the {math}`c` parameters of that algorithm play an important role to that behaviour.
 
 
-![../test/data/images/Accuracy_x.png](../test/data/images/Accuracy_x.png) 
+![../tests/data/images/Accuracy_x.png](../tests/data/images/Accuracy_x.png) 
 
 **Test 3:** {math}`f=x^2`
 
 The last test with {math}`f=x^2` and same other settings steps is displayed in the following figure. Here, the Gruenwald algorithm (green) behaves similar to the first case and reaches already the mentioned limitation (red). The Riemann algorithm (blue) has a stronger decrease and seems to approach its predicted limitation (red, dotted) also. The fast Riemann shows again an inverted peak, similar to the test with {math}`f=x`.
 
-![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_x2.png) 
+![../tests/data/images/Accuracy_x2.png](../tests/data/images/Accuracy_x2.png) 
 
 #### Full Integration
 
@@ -123,19 +123,19 @@ The previous Tests show, that all algorithms can perform a single semi-integrati
 
 The first test case considers the constant function as input and all semi-integration methods are applied twice. The next figure shows the relative error (logarithmically) along the x values. Here the Gruenwald algorithm (green) shows results close to the machine precision. Behind that graph is also the graph for the numerical integration (red) hidden, with the same precision. The Riemann algorithm (blue) shows again a steady decease and the fast Riemann (purple) is around {math}`10^{-3}` and increases slowly.
 
-![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_C.png) 
+![../tests/data/images/Accuracy_x2.png](../tests/data/images/Accuracy_full_C.png) 
 
 **Test 2:** {math}`f=x`
 
 With the case of {math}`f=x`, the implemented semi-integration algorithms show nearly the same decrease, except that for fast Riemann (purple) where the inverted peak is visible again. The numerical integration (red) is here close to machine precision, again.
 
-![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_x.png)
+![../tests/data/images/Accuracy_x2.png](../tests/data/images/Accuracy_full_x.png)
 
 **Test 3:** {math}`f=x^2`
 
 The last test case with {math}`f=x^2` shows similar results like previous. All three implemented semi-integration algorithms are quite similar, except the inverted peak for fast Riemann (purple) and the numerical integration (red) with an relative error, down to less then {math}`10^{-6}`.
 
-![../test/data/images/Accuracy_x2.png](../test/data/images/Accuracy_full_x2.png) 
+![../tests/data/images/Accuracy_x2.png](../tests/data/images/Accuracy_full_x2.png) 
 
 #### Full Integration with Realistic Values
 
@@ -156,7 +156,7 @@ y = norm.pdf(x,5,1)
 delta_x = x[1]-x[0]
 ```
 
-![../test/data/images/TestData.png](../test/data/images/TestData.png) 
+![../tests/data/images/TestData.png](../tests/data/images/TestData.png) 
 
 Now, the reference values are computed by the cumulative trapezoid method from scipy (numerical integration), like displayed below. In order to perform a ‘full’ integration (i.e. {math}`v=-1`) with the semi integration methods, each algorithm needs to be applied twice with {math}`v_1=v_2=-0.5`.  
 
@@ -171,24 +171,24 @@ d3 = si.gruenwald(si.gruenwald(y, delta_x), delta_x)
 These computed integrals (by scipy and by the implemented algorithms) are displayed below and show a wave-like function, as expected from the exemplary image in the fundamental section. Here it seems, that all graphs are nearly overlapping. To determine the real differences, the absolute and the relative errors have to be considered.
 
 
-![../test/data/images/full_int.png](../test/data/images/full_int.png) 
+![../tests/data/images/full_int.png](../tests/data/images/full_int.png) 
 
 The following figure shows the absolute error for each algorithm in a semilogarithmic plot along the {math}`x`-values. It can be seen, that the absolute error increases for each algorithm up to {math}`x=5` and then decreases, except for the fast Riemann algorithm (red), which shows an sharp dip and a subsequent increase.
 
-![../test/data/images/abserr_1000.png](../test/data/images/abserr_1000.png) 
+![../tests/data/images/abserr_1000.png](../tests/data/images/abserr_1000.png) 
 
 The relative error is displayed in the figure below. Here, the Riemann algorithm (cyan) has a relative high error in the very first steps and then behaves similar like the Gruenwald (magenta) algorithm by slowly decreasing and dropping at the end. The fast Riemann shows at first also a slow decrease, but then the inverted peak is again visible. This behavior is caused by the predefined {math}`c` parameters of that algorithm (like mentioned previously) and will be examined separately in a subsequent section.
 
 
-![../test/data/images/relerr_1000.png](../test/data/images/relerr_1000.png) 
+![../tests/data/images/relerr_1000.png](../tests/data/images/relerr_1000.png) 
 
 The accuracy of these algorithms is more or less sufficient, depending on the relatively low number of steps. In order to consider larger sets, the similar setup is applied for {math}`10000` steps. Therefore, the next figure shows the resulting absolute error for each algorithm. Here, the error of fast Riemann (red) seems to by lower at the beginning and increase similarly, like in the case with {math}`1000` steps. Interestingly, the inverted peak is also visible, but this time shifted more to the left side. The Riemann (cyan) and the Gruenwald (magenta) also behave similarly to the previous test, but with lower errors.
 
-![../test/data/images/abserr_10000.png](../test/data/images/abserr_10000.png) 
+![../tests/data/images/abserr_10000.png](../tests/data/images/abserr_10000.png) 
 
 The relative errors (next figure) for all algorithms seem to behave similar, compared to results with {math}`1000` steps. Only the overall error is shifted down to around one order and for fast Riemann (red) is the inverted peak visible on the left side.
 
-![../test/data/images/relerr_10000.png](../test/data/images/relerr_10000.png) 
+![../tests/data/images/relerr_10000.png](../tests/data/images/relerr_10000.png) 
 
 The previous tests show, that the implemented Gruenwald algorithm provides the best results, regarding the accuracy with a maximum relative error of around 1e-02. The Riemann algorithm behaves similar, but unfortunately it has a high relative error in the very first steps. The relative error of the fast Riemann algorithm is in the same range, compared to the other algorithms, except the existence of an dip and a slightly error grow, regarding higher x-values. These tests only cover the accuracy regarding the absolute and relative error. Further tests need to be done, in order to see the full possibilities of each implemented algorithm.
 ### Functionality Test
@@ -198,7 +198,7 @@ In the previous part, the algorithms where tested by using the semi integration 
 
 The first test considers only the possible semi integrations, i.e. {math}`v < 0`. Therefore, {math}`v` will be varied from -0.9 up to -0.1. The gaussian distribution will be used again as input, the ‘full’ numerical integration as reference and all algorithms were performed with 2000 steps. The following figure displays the computed semi integrals with the Gruenwald (G, green on left side) and the fast Riemann (FR, blue on right side) algorithm. 
 
-![../test/data/images/relerr_20000.png](../test/data/images/varying_semiint.png) 
+![../tests/data/images/relerr_20000.png](../tests/data/images/varying_semiint.png) 
 
 The figure above is separated in four plots. The first (top, left) shows the applied Gruenwald algorithm (green) with varying v and the “full” numerical integral (red) as reference. On the right top side are the resulting semi integrals for the implemented fast Riemann (blue).  The plots below show the same results, only in semi logarithmic view. 
 
@@ -209,7 +209,7 @@ Both algorithms allow to perform these kinds of semi integration, but the result
 The Gruenwald and the Riemann algorithm allow also a semi differentiation, i.e. {math}`v=0.5`. Fast Riemann has to be excluded due to the limitations stated in {cite:p}`pajkossy_fast_1984_65`. For the test, a fixed step size of 2000 and for the input values the computed result from the accuracy test are used, i.e. numerical integration of the gaussian distribution. With that, the ‘full’ differentiation should result in the gaussian distribution again. Therefore, the deviation between the gaussian distribution and the computed “double” semi differentiation are used to calculate the absolute error.
 
 
-![../test/data/images/relerr_20000.png](../test/data/images/full_diff.png) 
+![../tests/data/images/relerr_20000.png](../tests/data/images/full_diff.png) 
 
 The image above shows three plots. The first (top) displays the gaussian distribution (red) as reference result (“full” differentiation from the wave-like function) and the computed differentiations by applying the semi differentiation ({math}`v=0.5`) twice with Riemann (blue) or twice with Gruenwald (cyan). It is obvious, that the Gruenwald differs strongly from the gaussian distribution (initial graph), while the Riemann graph seems to overlay on the initial graph. The next semi logarithmic plot (middle) contains the absolute error of both algorithms. Here, the error of Gruenwald is high over the whole range, while the absolute error of Riemann shows quite good results with a maximum of about {math}`3.7 \cdot 10^{-5}`.  In the last semi logarithmic plot (bottom), the relative error is shown, which has similar results. Gruenwald is out of range and Riemann shows still good results, only in the very first steps, the relative error is similar to its behavior like with the semi integrations. 
 
@@ -222,31 +222,31 @@ In the description of the fast Riemann algorithm from the fundamental section, t
 
 Starting with {math}`x=0, ..., 10` and {math}`f=1`, the following figure shows on top the function ({math}`y=1`) and below a semi logarithmic plot with the relative error for {math}`1000` steps. Thereby, both parameters, {math}`C_1`and {math}`C_2` varies from {math}`1, 5, 10, 50` to {math}`100`.  Here the graph color change slowly from dark blue to bright green with increasing parameters. 
 
-![../test/data/images/FR_Para_C_1000.png](../test/data/images/FR_Para_C_1000.png) 
+![../tests/data/images/FR_Para_C_1000.png](../tests/data/images/FR_Para_C_1000.png) 
 
 It seems, that the relative error decreases with increasing number, but at the lowest error, two graphs show multiple of the inverted peaks, like is was observed in the first accuracy test. It must also be noted, that the computation time increases also with increasing parameters, which can be seen in detail in the double logarithmic plot below. For {math}`C_1,C_2` with {math}`1,1` setting it requires about {math}`2` ms and for {math}`100,100`, it needs up to {math}`10` seconds. The default setting ({math}`8,2`) is comparatively fast with {math}`17` ms and does not contain any inverted peaks.
 
-![../test/data/images/FR_Para_C_1000_time.png](../test/data/images/FR_Para_C_1000_time.png) 
+![../tests/data/images/FR_Para_C_1000_time.png](../tests/data/images/FR_Para_C_1000_time.png) 
 
 **Case 2: {math}`f=x`**
 
 In the next case with {math}`f=x` and the same setup like in case 1, the figure below shows on top the function ({math}`y=x`) and below the relative error in a semi logarithmic plot. Here arise the inverted peaks already with lower {math}`C_1` values (and a variety of {math}`C_2` values), while for higher {math}`C_1` values, the inverted peaks decrease.
 
-![../test/data/images/FR_Para_x_1000.png](../test/data/images/FR_Para_x_1000.png) 
+![../tests/data/images/FR_Para_x_1000.png](../tests/data/images/FR_Para_x_1000.png) 
 
 Regarding the time performance (see next figure), it is nearly equal to the first case. The default setting ({math}`8,2`) is still comparatively fast with {math}`18` ms, but shows an inverted peak. A step by step approach shows, that the peak disappears at {math}`C_1:9` & {math}`C_2:4`, which results in a computation time of {math}`38` ms.
 
-![../test/data/images/FR_Para_x_1000_time.png](../test/data/images/FR_Para_x_1000_time.png) 
+![../tests/data/images/FR_Para_x_1000_time.png](../tests/data/images/FR_Para_x_1000_time.png) 
 
 **Case 3: {math}`f=x^2`**
 
 The last case with {math}`f=x^2` (next figure, top) produces relative errors (next figure, below), which behaves quite similar to the previous case, i.e. the parameters have a strong influence to the quality of the computed values for all cases. In the case of higher {math}`C_1` values, the graphs seem even to flatten the inverted peak more. 
 
-![../test/data/images/FR_Para_x2_1000.png](../test/data/images/FR_Para_x2_1000.png) 
+![../tests/data/images/FR_Para_x2_1000.png](../tests/data/images/FR_Para_x2_1000.png) 
 
 The time performance (next figure) is still comparable to the previous cases. Similar to the second case, the default values are not sufficient to achieve a stable run without one or more inverted peaks. The setting with {math}`C_1:9` & {math}`C_2:2` fulfills this requirement and requires {math}`20` ms.
 
-![../test/data/images/FR_Para_x2_1000_time.png](../test/data/images/FR_Para_x2_1000_time.png) 
+![../tests/data/images/FR_Para_x2_1000_time.png](../tests/data/images/FR_Para_x2_1000_time.png) 
 
 The increase of the number of steps in the above examples leads to a left-shift of already existing inverted peaks, with the same C parameters. In addition, new peaks can form at higher {math}`C` values. For {math}`10` thousand steps, the setting of {math}`C_1:13` & {math}`C_2:9` result with no formation of peaks, but it takes on average {math}`1.2` seconds. For the further testing, the default values ({math}`C1:8, C2:2`) are maintained.
 
@@ -262,11 +262,11 @@ The implemented algorithms need to be tested with multiple compositions of {math
 
 As first test case the implemented algorithms will be applied twice with varying v values. Under consideration that v= v1 +v2 = -1 holds, v1 varies from -1 to 0 and v2 from 0 to -1, both in 0.001 steps. The following figure shows a double logarithmic plot of the relative error along the v1 (or v2-1) values for the Gruenwald algorithm. It can be seen, that all errors are near the machine precision, which means the algorithm can be used in that way.
 
-![../test/data/images/double_varying_semiint_G.png](../test/data/images/double_varying_semiint_G.png) 
+![../tests/data/images/double_varying_semiint_G.png](../tests/data/images/double_varying_semiint_G.png) 
 
 The same setup is tested for the implemented fast Riemann algorithm and is displayed in the next figure. Here, the relative error is lowest for {math}`v_1=v_2=-0.5`, which is reasonable, as it was optimized for electroanalytical applications {cite:p}`pajkossy_fast_1984_65`. Compared to the Gruenwald algorithm, the relative error is overall quite high, but similar to the previous testing, the accuracy is related to the number of steps (here {math}`1000`). 
 
-![../test/data/images/double_varying_semiint_FR.png](../test/data/images/double_varying_semiint_FR.png) 
+![../tests/data/images/double_varying_semiint_FR.png](../tests/data/images/double_varying_semiint_FR.png) 
 
 **Case 2: Triple and more Semi Integration**
 
@@ -274,15 +274,15 @@ The previous case considers only the application of semi integration to times (e
 
 The following figure shows for each mentioned scenario the relative error along the x- values for y=1 (const) with {math}`1000` steps. Here it is obvious, that the error is every time at a constant value (near 1), i.e. the application is not plausible.
 
-![../test/data/images/triple_varying_semiint_G.png](../test/data/images/triple_varying_semiint_G.png) 
+![../tests/data/images/triple_varying_semiint_G.png](../tests/data/images/triple_varying_semiint_G.png) 
 
 Focused on the fast Riemann, the next image displays the relative error (here logarithmic) for the same case ({math}`y=1`, {math}`n=1000`). For each scenario, there are multiple inverted peaks, similar to the previous tests, which makes the overall error not valid.
 
-![../test/data/images/triple_varying_semiint_FR_init.png](../test/data/images/triple_varying_semiint_FR_init.png) 
+![../tests/data/images/triple_varying_semiint_FR_init.png](../tests/data/images/triple_varying_semiint_FR_init.png) 
 
 The last composition test considers the fast Riemann again, but now with modified {math}`C_1` & {math}`C2` values ({math}`10,10`). Here the resulting relative errors (figure below) don’t show anymore the inverted peaks. Except the last scenario, all others errors decrease steadily. Latter one shows slight disturbances, but still a decrease. All scenarios with the modified C values show quite reasonable errors (below {math}`-10^{-4}`), therefore a further investigation of these {math}`C` values is necessary.
 
-![../test/data/images/triple_varying_semiint_FR_opt.png](../test/data/images/triple_varying_semiint_FR_opt.png) 
+![../tests/data/images/triple_varying_semiint_FR_opt.png](../tests/data/images/triple_varying_semiint_FR_opt.png) 
 
 ### Performance Test
 
