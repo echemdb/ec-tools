@@ -69,6 +69,31 @@ def determine_scan_rate(t, x):
     return np.abs(np.diff(x) / np.diff(t)).mean()
 
 
+def find_extrema_indeces(y, mode="all"):
+    """Return the indexes of limits of cyclic voltammetry.
+
+    Workaround for Windows platform:
+    list(array([...], dtype=int64))
+    TEST:
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
+    >>> list(find_extrema_indeces(E))
+    [5, 11]
+
+    >>> list(find_extrema_indeces(E, mode="pos"))
+    [5]
+    """
+    signs = np.diff(np.sign(np.diff(y)))
+
+    if mode == "all":
+        extrema = np.where((signs == 2) | (signs == -2))[0]
+    elif mode == "pos":
+        extrema = np.where(signs == -2)[0]
+    elif mode == "neg":
+        extrema = np.where(signs == 2)[0]
+
+    return extrema + 1
+
+
 def detect_step(t, x):
     """Returns the index of the step in given t and x arrays.
     Index is the where the changed value of t located.
