@@ -5,6 +5,7 @@ author = "the ec-tools authors"
 release = "0.0.1"
 
 extensions = [
+    "matplotlib.sphinxext.plot_directive",
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
     "myst_nb",

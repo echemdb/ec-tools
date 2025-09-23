@@ -141,7 +141,7 @@ with the number of points (:math:`N`). Here it is necessary to define some input
 values, which is set to :math:`c_1=8, c_2=2` by default, as recommended by Pajkossy. With these variables, the
 algorithm can be described as pseudo code:
 
-.. image:: ../test/data/images/alg_fast_riemann.png
+.. image:: ../tests/data/images/alg_fast_riemann.png
   :width: 500
   :alt: Image
 
