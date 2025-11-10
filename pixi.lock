@@ -5198,7 +5198,7 @@ packages:
 - pypi: ./
   name: ec-tools
   version: 0.1.0
-  sha256: 9bcd57101724ec07741fb66a34775a6564ef81fe1b37b087235b6768082b6a6d
+  sha256: 2c24953c62fff258a67a3b39e12b25f7d5fa7cbb8556b45a20892d1c93f734d7
   requires_dist:
   - numpy>=2.0.2,<3
   - transonic>=0.7.3,<0.8
