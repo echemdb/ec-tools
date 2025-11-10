@@ -1,7 +1,8 @@
 [FORMAT]
+max-locals=17
 max-line-length=256
 max-module-lines=65536
-good-names=x,y,N,c1,c2,a0,tau0,w1,w2,q,j,i,R,s,k,t,m
+good-names=x,y,N,c1,c2,a0,tau0,w1,w2,q,j,i,R,s,k,t,m,v, I,d_tol
 
 [MESSAGES CONTROL]
-disable=import-outside-toplevel,too-many-arguments,use-maxsplit-arg,fixme
+disable=import-outside-toplevel,too-many-arguments,too-many-return-statements,too-many-branches,inconsistent-return-statements,use-maxsplit-arg,fixme,anomalous-backslash-in-string

@@ -1,19 +1,112 @@
-# inspired by the pylint repo
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ec-tools"
-license     = {text = "GPL-3.0-or-later"}
+classifiers = ["License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)"]
 description = "tools to work with electrochemical data"
 readme      = "README.md"
 
-requires-python = ">=3.9.0"
+requires-python = ">=3.10.0"
 dependencies    = [
-    "numpy",
+    "numpy>=2.0.2,<3",
+    "transonic>=0.7.3,<0.8",
+    "astropy>=5,<7",
 ]
-version = "0.0.2"
+version = "0.1.0"
+
 
 [tool.setuptools]
-license-files = ["LICENSE"]  # Keep in sync with setup.cfg
+packages = ["ec_tools",]
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
+
+[tool.pixi.environments]
+python-310 = ["test", "python-310"]
+python-311 = ["test", "python-311"]
+python-312 = ["test", "python-312"]
+python-313 = ["test", "python-313"]
+benchmark = ["opt"]
+dev = ["dev", "doc", "test", "benchmark", "lint"]
+
+[tool.pixi.dependencies]
+numpy = "*"
+transonic = "*"
+
+[tool.pixi.pypi-dependencies]
+ec-tools = { path = ".", editable = true }
+
+[tool.pixi.feature.python-310.dependencies]
+python = "3.10.*"
+
+[tool.pixi.feature.python-311.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.python-312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.python-313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.test.dependencies]
+numba = "*"
+pytest = "*"
+pytest-xdist = "*"
+pytest-doctestplus = "*"
+pythran = "*"
+scipy = "*"
+
+[tool.pixi.feature.test.tasks]
+doctest = "pytest -n auto --doctest-modules ec_tools"
+
+[tool.pixi.feature.opt.dependencies]
+numba = "*"
+pythran = "*"
+
+[tool.pixi.feature.benchmark.dependencies]
+scipy = "*"
+
+[tool.pixi.feature.benchmark.tasks]
+benchmark = "TODO"
+
+[tool.pixi.feature.lint.dependencies]
+ruff = ">=0.11.13,<0.12"
+
+[tool.pixi.feature.lint.tasks]
+pylint = "ruff check ec_tools"
+black = "ruff format ec_tools"
+isort = "ruff check --select I ec_tools"
+lint = { depends-on = ["pylint", "black", "isort"]  }
+
+[tool.pixi.feature.doc.dependencies]
+jupytext = "*"
+myst-parser = "*"
+myst-nb = "*"
+sphinx = "*"
+sphinx-autobuild = "*"
+sphinx-design = "*"
+sphinx_rtd_theme = "*"
+sphinxcontrib-bibtex = "*"
+
+[tool.pixi.feature.doc.pypi-dependencies]
+"sphinxcontrib.katex" = "*"
+
+[tool.pixi.feature.doc.tasks]
+doc = "cd doc && make html SPHINXOPTS='-W -n --keep-going'"
+doc-watch = "sphinx-autobuild doc doc/generated/html --watch 'ec_tools/*'"
+linkcheck = "cd doc && make linkcheck"
+
+[tool.pixi.feature.dev.dependencies]
+pip = "*"
+conda = "*"
+
+[tool.ruff]
+lint.select = ["E", "F", "W", "B"]
+lint.ignore = [
+    "B905",
+]
+lint.fixable = ["E", "F", "W", "B"]
+line-length = 115

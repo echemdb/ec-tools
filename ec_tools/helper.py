@@ -52,9 +52,7 @@ def find_x0_values(x, y, mode="all"):
     )
     delta_x = -y[non_exact_crossings] / m
 
-    return np.sort(
-        np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]])
-    )
+    return np.sort(np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]]))
 
 
 def determine_scan_rate(t, x):
@@ -62,8 +60,9 @@ def determine_scan_rate(t, x):
 
     TEST:
     >>> t = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32])
-    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12, 0.13, 0.14])
-    >>> determine_scan_rate(t, E)
+    >>> E = np.array([0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.14, 0.13, 0.12, 0.11, 0.10, 0.09, 0.10, 0.11, 0.12,
+    ... 0.13, 0.14])
+    >>> float(determine_scan_rate(t, E))
     0.005
     """
 
@@ -79,7 +78,7 @@ def detect_step(t, x):
     >>> E = np.array([-0.205383, -0.204468, -0.204773, -0.205078, 0.500183, 0.500488, 0.501099,
     ... 0.500183, 0.500488, 0.500488, 0.500183, 0.500488, 0.500488, 0.500488, 0.500183, 0.499878,
     ... 0.499878, 0.500183, 0.500183, 0.499878, 0.500488])
-    >>> detect_step(t, E)
+    >>> int(detect_step(t, E))
     4
     """
     return np.abs(np.diff(x) / np.diff(t)).argmax() + 1

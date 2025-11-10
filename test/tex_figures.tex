@@ -1,0 +1,71 @@
+\documentclass{article}
+\thispagestyle{empty}
+\usepackage{algpseudocode}
+\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\begin{document}
+
+\begin{algorithm}
+    \caption{Fast Riemann} 
+    \SetKwFunction{isOddNumber}{isOddNumber}
+    \SetKwInOut{KwIn}{Input}
+    
+    \KwIn{$q, N, \delta_t, c_1, c_2, I$}
+    \BlankLine
+    $t_0 = \delta_t\; N^{\frac{1}{2}}$\\
+    \BlankLine
+    $a_0 = \sin(\pi\; q)/(\pi\; q\;t_0^q)$\\    
+    \BlankLine
+    \For{$i = 0,\hdots,2\:c_1\:c_2$}{
+        \BlankLine
+        $j = i-c_1c_2$\\
+        \BlankLine
+        $a_j = (a_0/c_2)\exp(j/c_2)$\\
+        \BlankLine
+        $t_j = t_0 \exp(-j/qc_2)$\\
+        \BlankLine
+        $w_1(i) = t_j / (\delta_t + t_j)$\\
+        \BlankLine
+        $w_2(i) = a_j(1-w_1(i))$\\
+        \BlankLine
+        $s(i) = 0$
+    }
+    \BlankLine
+    \For{$k=1,\hdots, N$}{
+        \BlankLine
+        $R(k)=0$\\
+        \BlankLine
+        \For{$i=0,\hdots,2c_1c_2$}{
+            \BlankLine
+            $s(i)= s(i)w_1(i) + I(k)w_2(i)$\\
+            \BlankLine
+            $R(k) = R(k) + s(i)$
+        }
+    }
+    \KwRet{$R$}
+
+\end{algorithm}
+
+   
+    
+    \begin{center}
+        \begin{tabular}{c|cc}
+            $f$ & $\left(\frac{df}{dx}\right)^{0.5}$ & $\left(\frac{df}{dx}\right)^{-0.5}$\\
+            \hline
+            $C$ & $\frac{C}{\sqrt{\pi x}}$ & $ 2C\sqrt{\frac{x}{\pi}}$ \\
+            $x$ & $2\sqrt{\frac{x}{\pi}}$ & $\frac{4x^{3/2}}{3\sqrt{\pi}}$ \\
+            $x^2$ & $\frac{8x^{3/2}}{3\sqrt{\pi}}$ & $\frac{16x^{5/2}}{15\sqrt{\pi}}$\\
+        \end{tabular}
+        
+        \vspace{2cm}
+        
+        \begin{tabular}{ c| c  c c }
+            Algorithm & \multicolumn{3}{c}{Relative error}\\
+            &$\varepsilon(C)$ &  $\varepsilon(x)$ & $\varepsilon(x^2)$ \\ 
+            \hline
+            G1 (all q) & $\frac{ q(q+1)}{2N}$ & $\frac{ q(q-1)}{2N}$ & $\frac{ q(q-2)}{2N}$ \\  
+            R1 ($q<0$) & 0 & $\frac{1-q}{N}\left[\frac{\zeta(q)}{N^{-q}}-\frac{q}{12N}\right]$ & 
+            $\frac{(2-q)(1-q)}{N^2}\left[\frac{\zeta(q)}{N^{-q-1}}-\frac{\zeta(q-1)}{N^{-q}} + \frac{1}{6}\right]$
+        \end{tabular}
+    \end{center}
+\end{document}

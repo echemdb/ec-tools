@@ -1,0 +1,11 @@
+[package]
+name = "rs_benchmark"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ndarray = "0.15.6"
+num-traits = "0.2.15"
+csv = "1.1"
+ndarray-csv = "0.5.1"
+serde = { version = "1", features = ["derive"] }
