@@ -5198,10 +5198,10 @@ packages:
 - pypi: ./
   name: ec-tools
   version: 0.1.0
-  sha256: 6d07043274acc4c1087e9d5c92e399013196cb9c6bd2f2469e361345e297e3dc
+  sha256: 7c7a67054afd99fb13ee99caac732cc8a479157eeb71e2340ee6fc6f0f169594
   requires_dist:
   - numpy>=2.0.2,<3
-  - transonic>=0.7.3,<0.8
+  - transonic>=0.7.3,<0.9
   - astropy>=5,<8
   requires_python: '>=3.10.0'
   editable: true
