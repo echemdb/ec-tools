@@ -15,7 +15,7 @@ jobs:
         environment: ["python-310", "python-311", "python-312", "python-313", "python-314"]
         os: ["ubuntu-latest", "ubuntu-24.04-arm", "macos-latest", "windows-latest"]
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with: { submodules: recursive }
       - uses: prefix-dev/setup-pixi@v0.9.3
         with: { pixi-version: v0.61.0 }
