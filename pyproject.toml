@@ -9,7 +9,12 @@ description = "tools to work with electrochemical data"
 readme      = "README.md"
 requires-python = ">=3.10.0"
 dependencies    = [ "numpy>=2.0.3,<3", "transonic>=0.7.3,<0.9" ]
+
 version = "0.1.0"
+
+[project.optional-dependencies]
+numba = ["numba"]
+pythran = ["pythran"]
 
 [tool.setuptools]
 packages = ["ec_tools",]
@@ -19,13 +24,15 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 
 [tool.pixi.environments]
-python-310 = ["test", "python-310"]
-python-311 = ["test", "python-311"]
-python-312 = ["test", "python-312"]
-python-313 = ["test", "python-313"]
-python-314 = ["test", "python-314"]
-benchmark = ["opt"]
-dev = ["dev", "doc", "test", "benchmark", "lint"]
+python-310 = ["test", "python-310", "numba", "pythran"]
+python-311 = ["test", "python-311", "numba", "pythran"]
+python-312 = ["test", "python-312", "numba", "pythran"]
+python-313 = ["test", "python-313", "numba", "pythran"]
+python-314 = ["test", "python-314", "numba", "pythran"]
+
+benchmark = ["benchmark", "numba", "pythran"]
+
+dev = ["dev", "doc", "test", "benchmark", "lint", "numba", "pythran"]
 
 [tool.pixi.dependencies]
 numpy = "*"
@@ -50,18 +57,18 @@ python = "3.13.*"
 python = "3.14.*"
 
 [tool.pixi.feature.test.dependencies]
-numba = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-doctestplus = "*"
-pythran = "*"
 scipy = "*"
 
 [tool.pixi.feature.test.tasks]
 doctest = "pytest -n auto --doctest-modules ec_tools"
 
-[tool.pixi.feature.opt.dependencies]
+[tool.pixi.feature.numba.dependencies]
 numba = "*"
+
+[tool.pixi.feature.pythran.dependencies]
 pythran = "*"
 
 [tool.pixi.feature.benchmark.dependencies]
@@ -71,7 +78,7 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.14.5,<0.15"
+ruff = ">=0.15.0,<0.16"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
