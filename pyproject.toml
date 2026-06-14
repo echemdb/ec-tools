@@ -78,13 +78,15 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.15.0,<0.16"
+ruff = ">=0.15.17,<0.16"
+ty = ">=0.0.49,<0.0.50"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
 black = "ruff format ec_tools"
 isort = "ruff check --select I ec_tools"
-lint = { depends-on = ["pylint", "black", "isort"]  }
+ty = "ty check --python $CONDA_PREFIX ec_tools"
+lint = { depends-on = ["pylint", "black", "isort", "ty"]  }
 
 [tool.pixi.feature.doc.dependencies]
 jupytext = "*"
