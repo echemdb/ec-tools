@@ -267,11 +267,14 @@ Furthermore he can optionally set a flag (<code class="docutils literal notransl
 <p><code class="docutils literal notranslate"><span class="pre">g1</span></code>: Gruenwald</p>
 <p><code class="docutils literal notranslate"><span class="pre">r1</span></code>: Riemann and Liouville</p>
 <p>Available backends (<code class="docutils literal notranslate"><span class="pre">transonic_backend</span></code> ):</p>
-<p><code class="docutils literal notranslate"><span class="pre">python</span></code>: Transonic package with python backend (default)</p>
+<p><code class="docutils literal notranslate"><span class="pre">python</span></code>: Transonic package with python backend</p>
 <p><code class="docutils literal notranslate"><span class="pre">numba</span></code>: Transonic package with numba backend</p>
-<p><code class="docutils literal notranslate"><span class="pre">pythran</span></code>: Transonic package with pythran backend</p>
+<p><code class="docutils literal notranslate"><span class="pre">pythran</span></code>: Transonic package with pythran backend (default)</p>
 <p><code class="docutils literal notranslate"><span class="pre">d_tol</span></code> (by default: <span class="math">\(1 \cdot 10^{-5}\)</span>) defines the maximum relational difference between individual
 step and the average step size. It can be modified, if the time steps are not equally spaced.</p>
+<p><code class="docutils literal notranslate"><span class="pre">c1</span></code>, <code class="docutils literal notranslate"><span class="pre">c2</span></code> (by default <span class="math">\(8\)</span> and <span class="math">\(2\)</span>) are the fast Riemann filter constants. They are only
+used by the <code class="docutils literal notranslate"><span class="pre">frlt</span></code> algorithm and otherwise ignored. They trade accuracy against computation time and may
+need to be increased to suppress the “inverted peak” artifacts for larger data sets (see <code class="docutils literal notranslate"><span class="pre">fast_riemann</span></code>).</p>
 <p>The generalized <code class="docutils literal notranslate"><span class="pre">semi_integration</span></code> function can be imported and executed by:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ec_tools.semi_integration</span><span class="w"> </span><span class="kn">import</span> <span class="n">semi_integration</span>
 <span class="n">semi_integration</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">transonic_backend</span><span class="p">)</span>
