@@ -150,8 +150,38 @@ Here, :math:`R` represents the calculated semi integral, i.e.
 
 """
 
+import warnings
+
+from typing import TYPE_CHECKING
+
 import numpy as np
-from transonic import jit
+from transonic import Array, Type, jit
+
+# Type used to annotate the jitted numeric cores. transonic copies signature
+# annotations into the generated backend source, where a plain ``np.ndarray`` is
+# not a valid pythran type identifier; its own ``Array`` type is translated
+# correctly (``Type(int, float)`` is a fused type so both integer and float input
+# arrays -- e.g. the int arrays in the doctests -- compile). Static type checkers,
+# on the other hand, do not understand ``Array``, so for them it aliases to
+# ``np.ndarray``; transonic only ever sees the runtime (else) branch.
+if TYPE_CHECKING:
+    _Array1D = np.ndarray
+else:
+    _Array1D = Array[Type(int, float), "1d"]
+
+
+def _warn_untested_v(v: float) -> None:
+    """Emit a warning for ``v`` values the algorithms are not verified for.
+
+    Kept separate from the numeric ``_core`` functions on purpose: those are
+    compiled by transonic, whose static analysis cannot resolve ``warnings.warn``.
+    This helper is only ever called from non-jitted code.
+    """
+    if v not in (-0.5, 0.5):
+        warnings.warn(
+            "algorithm is only tested for v=0.5 and v=-0.5. Other values for v are not verified!",
+            stacklevel=3,
+        )
 
 
 def semi_integration(
@@ -161,6 +191,8 @@ def semi_integration(
     alg: str = "frlt",
     transonic_backend: str = "pythran",
     d_tol: float = 1e-5,
+    c1: int = 8,
+    c2: int = 2,
 ) -> np.ndarray:
     r"""
     A generalized call is implemented, in which the user can define with ``v`` the operation i.e. semi integration
@@ -178,14 +210,18 @@ def semi_integration(
 
     Available backends (``transonic_backend`` ):
 
-    ``python``: Transonic package with python backend (default)
+    ``python``: Transonic package with python backend
 
     ``numba``: Transonic package with numba backend
 
-    ``pythran``: Transonic package with pythran backend
+    ``pythran``: Transonic package with pythran backend (default)
 
     ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual
     step and the average step size. It can be modified, if the time steps are not equally spaced.
+
+    ``c1``, ``c2`` (by default :math:`8` and :math:`2`) are the fast Riemann filter constants. They are only
+    used by the ``frlt`` algorithm and otherwise ignored. They trade accuracy against computation time and may
+    need to be increased to suppress the "inverted peak" artifacts for larger data sets (see ``fast_riemann``).
     """
 
     # Calc average step size
@@ -194,7 +230,7 @@ def semi_integration(
 
     # warning if avg. delta_x differs to much from single ones
     if np.max(np.abs(deltas / delta_x - 1)) >= d_tol:
-        print("Warning: step size tolerance reached!")
+        warnings.warn("step size tolerance reached!", stacklevel=2)
 
     if alg not in ["g1", "r1", "frlt"] or transonic_backend not in [
         "python",
@@ -203,82 +239,19 @@ def semi_integration(
     ]:
         raise ValueError("\nNo matching setting for alg or transonic_backend")
 
+    # Validate/warn here (non-jitted) so the jitted cores stay pure numeric:
+    # transonic cannot resolve warnings.warn inside compiled code.
+    if alg == "r1" and v not in (0.5, -0.5):
+        raise ValueError("\nError: This algorithm accepts only v=0.5 and v=-0.5.")
+    if alg == "frlt" and v > 0:
+        raise ValueError("This algorithm works right now only for semi integration, i.e. (q<0)")
+    _warn_untested_v(v)
+
+    # Look up the pre-built jitted core for this (algorithm, backend) pair and run it.
+    core = _JITTED_CORES[(alg, transonic_backend)]
     if alg == "frlt":
-        if transonic_backend == "python":
-
-            @jit(backend="python")
-            def fast_riemann_python(y, delta_x, v):
-                return fast_riemann(y, delta_x, v)
-
-            return fast_riemann_python(y, delta_x, v)
-
-        if transonic_backend == "numba":
-
-            @jit(backend="numba")
-            def fast_riemann_numba(y, delta_x, v):
-                return fast_riemann(y, delta_x, v)
-
-            return fast_riemann_numba(y, delta_x, v)
-
-        if transonic_backend == "pythran":
-
-            @jit(backend="pythran")
-            def fast_riemann_pythran(y, delta_x, v):
-                return fast_riemann(y, delta_x, v)
-
-            return fast_riemann_pythran(y, delta_x, v)
-
-    elif alg == "g1":
-        if transonic_backend == "python":
-
-            @jit(backend="python")
-            def gruenwald_python(y, delta_x, v):
-                return gruenwald(y, delta_x, v)
-
-            return gruenwald_python(y, delta_x, v)
-
-        if transonic_backend == "numba":
-
-            @jit(backend="numba")
-            def gruenwald_numba(y, delta_x, v):
-                return gruenwald(y, delta_x, v)
-
-            return gruenwald_numba(y, delta_x, v)
-
-        if transonic_backend == "pythran":
-
-            @jit(backend="pythran")
-            def gruenwald_pythran(y, delta_x, v):
-                return gruenwald(y, delta_x, v)
-
-            return gruenwald_pythran(y, delta_x, v)
-
-    elif alg == "r1":
-        if transonic_backend == "python":
-
-            @jit(backend="python")
-            def riemann_python(y, delta_x, v):
-                return riemann(y, delta_x, v)
-
-            return riemann_python(y, delta_x, v)
-
-        if transonic_backend == "numba":
-
-            @jit(backend="numba")
-            def riemann_numba(y, delta_x, v):
-                return riemann(y, delta_x, v)
-
-            return riemann_numba(y, delta_x, v)
-
-        if transonic_backend == "pythran":
-
-            @jit(backend="pythran")
-            def riemann_pythran(y, delta_x, v):
-                return riemann(y, delta_x, v)
-
-            return riemann_pythran(y, delta_x, v)
-
-    raise AssertionError(f"unhandled alg/backend combination: {alg!r}/{transonic_backend!r}")
+        return core(y, delta_x, v, c1, c2)
+    return core(y, delta_x, v)
 
 
 def gruenwald(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
@@ -322,10 +295,12 @@ def gruenwald(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
     True
 
     """
-    if v != (-0.5 or 0.5):
-        print("\nWarning: algorithm is only tested for v=0.5 and v=-0.5.")
-        print("           Other values for v are not verified!\n")
+    _warn_untested_v(v)
+    return _gruenwald(y, delta_x, v)
 
+
+def _gruenwald(y: _Array1D, delta_x: float, v: float = -0.5):
+    # Pure-numeric Gruenwald core, jitted by transonic. See gruenwald() for docs.
     # No. of steps
     n_max = y.size
     # initialize with zeros
@@ -382,30 +357,49 @@ def riemann(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
     True
 
     """
-
     if v not in (0.5, -0.5):
         raise ValueError("\nError: This algorithm accepts only v=0.5 and v=-0.5.")
+    return _riemann(y, delta_x, v)
 
-    # No. of steps
+
+def _riemann(y: _Array1D, delta_x: float, v: float = -0.5):
+    # Riemann core for the python backend (and the one riemann() calls directly).
+    # The inner sum is a discrete convolution of y with the second difference of
+    # m**(1-v), evaluated via NumPy's optimised np.convolve -- fast in pure Python.
     n_max = y.size
-    # initialize with zeros
-    r_1 = np.zeros(n_max)
 
     if v == -0.5:
         sqrt_d_pi = (4 / 3) * np.sqrt(delta_x / np.pi)
-    elif v == 0.5:
+    else:
         sqrt_d_pi = 2 / np.sqrt(delta_x * np.pi)
 
-    for N in range(1, n_max + 1):
-        r_i = 0
-        for i in range(1, N):
-            r_i += y[i - 1] * ((N - i + 1) ** (1 - v) - 2 * (N - i) ** (1 - v) + (N - i - 1) ** (1 - v))
+    # naive original implmentation
+    # for N in range(1, n_max + 1):
+    #     r_i = 0
+    #     for i in range(1, N):
+    #         r_i += y[i - 1] * ((N - i + 1) ** (1 - v) - 2 * (N - i) ** (1 - v) + (N - i - 1) ** (1 - v))
 
-        r_1[N - 1] = sqrt_d_pi * (
-            y[N - 1] + y[0] * ((1 - v) * N ** (-v) - N ** (1 - v) + (N - 1) ** (1 - v)) + r_i
-        )
+    #     r_1[N - 1] = sqrt_d_pi * (
+    #         y[N - 1] + y[0] * ((1 - v) * N ** (-v) - N ** (1 - v) + (N - 1) ** (1 - v)) + r_i
+    #     )
 
-    return r_1
+    # return r_1
+
+    # The original algorithm is an O(N^2) double loop. The inner sum
+    #   sum_i y[i-1] * ((N-i+1)^p - 2(N-i)^p + (N-i-1)^p),  p = 1 - v
+    # is a discrete convolution of y with the second difference of m^p, so it is
+    # evaluated in one np.convolve call. (This needs pythran's BLAS-backed convolve;
+    # cblas.h is provided by the blas-devel/pythran-openblas dependency.)
+    pw = np.arange(n_max + 1) ** (1 - v)  # pw[m] = m^p, pw[0] = 0
+    weights = np.zeros(n_max)  # weights[0] = 0; the i = N term is added separately below
+    weights[1:] = pw[2:] - 2 * pw[1:n_max] + pw[: n_max - 1]
+    conv = np.convolve(y, weights)[:n_max]
+
+    # Boundary contribution y[0] * h(N) for N = 1..n_max.
+    n = np.arange(1, n_max + 1)
+    h = (1 - v) * n ** (-v) - pw[1 : n_max + 1] + pw[:n_max]
+
+    return sqrt_d_pi * (y + y[0] * h + conv)
 
 
 def fast_riemann(y: np.ndarray, delta_x: float = 1, q: float = -0.5, c1: int = 8, c2: int = 2) -> np.ndarray:
@@ -470,13 +464,15 @@ def fast_riemann(y: np.ndarray, delta_x: float = 1, q: float = -0.5, c1: int = 8
     ... cumulative_trapezoid(y,x,initial=0), rtol=1e-0)
     True
     """
-
     if q > 0:
         raise ValueError("This algorithm works right now only for semi integration, i.e. (q<0)")
+    _warn_untested_v(q)
+    return _fast_riemann(y, delta_x, q, c1, c2)
 
-    if q != -0.5:
-        print("\nWarning: algorithm is only tested for v=0.5 and v=-0.5.")
-        print("         Other values for v are not verified!\n")
+
+def _fast_riemann(y: _Array1D, delta_x: float = 1, q: float = -0.5, c1: int = 8, c2: int = 2):
+    # Pure-numeric fast Riemann core, jitted by transonic (assumes q < 0).
+    # See fast_riemann() for docs.
 
     def prepare_kernel(q, delta_x, N, c1, c2):
         r"""
@@ -510,3 +506,22 @@ def fast_riemann(y: np.ndarray, delta_x: float = 1, q: float = -0.5, c1: int = 8
             s[i] = s[i] * w1[i] + y[k] * w2[i]
             R[k] = R[k] + s[i]
     return R
+
+
+# Pre-built jitted variants for every (algorithm, backend) pair, used by
+# semi_integration(). Built once at import time rather than on every call, which
+# avoids transonic re-analysing the source on each invocation. transonic requires
+# a literal backend string and a literal core name at each call site, so the
+# entries are spelled out explicitly (no loops/variables). Compilation is lazy:
+# each entry is only compiled the first time it is actually called.
+_JITTED_CORES = {
+    ("g1", "python"): jit(backend="python")(_gruenwald),
+    ("g1", "numba"): jit(backend="numba")(_gruenwald),
+    ("g1", "pythran"): jit(backend="pythran")(_gruenwald),
+    ("r1", "python"): jit(backend="python")(_riemann),
+    ("r1", "numba"): jit(backend="numba")(_riemann),
+    ("r1", "pythran"): jit(backend="pythran")(_riemann),
+    ("frlt", "python"): jit(backend="python")(_fast_riemann),
+    ("frlt", "numba"): jit(backend="numba")(_fast_riemann),
+    ("frlt", "pythran"): jit(backend="pythran")(_fast_riemann),
+}
