@@ -14,28 +14,37 @@ version = "0.1.0"
 
 [project.optional-dependencies]
 numba = ["numba"]
-pythran = ["pythran"]
+# scipy-openblas64 bundles a self-contained OpenBLAS (lib + headers) so the pythran
+# backend can compile BLAS-backed numpy routines (np.convolve in the Riemann core)
+# without a system BLAS. It ships wheels for linux/macos (incl. arm64) and windows;
+# on any platform without a wheel pip simply skips it (environment marker below) and
+# the numba backend or a system BLAS can be used instead. ec_tools/__init__.py points
+# pythran at it automatically when present.
+pythran = [
+    "pythran",
+    "scipy-openblas64; platform_machine in 'x86_64 AMD64 aarch64 arm64'",
+]
 
 [tool.setuptools]
 packages = ["ec_tools",]
 
 [tool.setuptools.package-data]
-ec_tools = ["py.typed"]
+ec_tools = ["py.typed", "pythran.cfg"]
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
 
 [tool.pixi.environments]
-python-310 = ["test", "python-310", "numba", "pythran"]
-python-311 = ["test", "python-311", "numba", "pythran"]
-python-312 = ["test", "python-312", "numba", "pythran"]
-python-313 = ["test", "python-313", "numba", "pythran"]
-python-314 = ["test", "python-314", "numba", "pythran"]
+python-310 = ["test", "python-310", "numba", "pythran-backend"]
+python-311 = ["test", "python-311", "numba", "pythran-backend"]
+python-312 = ["test", "python-312", "numba", "pythran-backend"]
+python-313 = ["test", "python-313", "numba", "pythran-backend"]
+python-314 = ["test", "python-314", "numba", "pythran-backend"]
 
-benchmark = ["benchmark", "numba", "pythran"]
+benchmark = ["benchmark", "numba", "pythran-backend"]
 
-dev = ["dev", "doc", "test", "benchmark", "lint", "numba", "pythran"]
+dev = ["dev", "doc", "test", "benchmark", "lint", "numba", "pythran-backend"]
 
 [tool.pixi.dependencies]
 numpy = "*"
@@ -71,8 +80,11 @@ doctest = "pytest -n auto --doctest-modules ec_tools"
 [tool.pixi.feature.numba.dependencies]
 numba = "*"
 
-[tool.pixi.feature.pythran.dependencies]
+[tool.pixi.feature.pythran-backend.dependencies]
 pythran = "*"
+# Provides cblas.h, required when pythran compiles numpy routines that go through
+# numpy/dot.hpp (e.g. np.convolve used in the Riemann semi-integration core).
+blas-devel = "*"
 
 [tool.pixi.feature.benchmark.dependencies]
 scipy = "*"
