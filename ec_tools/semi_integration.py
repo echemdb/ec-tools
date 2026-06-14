@@ -178,11 +178,11 @@ def semi_integration(
 
     Available backends (``transonic_backend`` ):
 
-    ``python``: Transonic package with python backend (default)
+    ``python``: Transonic package with python backend
 
     ``numba``: Transonic package with numba backend
 
-    ``pythran``: Transonic package with pythran backend
+    ``pythran``: Transonic package with pythran backend (default)
 
     ``d_tol`` (by default: :math:`1 \cdot 10^{-5}`) defines the maximum relational difference between individual
     step and the average step size. It can be modified, if the time steps are not equally spaced.
