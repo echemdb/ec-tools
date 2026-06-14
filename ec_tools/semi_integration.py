@@ -322,7 +322,7 @@ def gruenwald(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
     True
 
     """
-    if v != (-0.5 or 0.5):
+    if v not in (-0.5, 0.5):
         print("\nWarning: algorithm is only tested for v=0.5 and v=-0.5.")
         print("           Other values for v are not verified!\n")
 
