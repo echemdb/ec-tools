@@ -19,6 +19,9 @@ pythran = ["pythran"]
 [tool.setuptools]
 packages = ["ec_tools",]
 
+[tool.setuptools.package-data]
+ec_tools = ["py.typed"]
+
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64", "linux-aarch64", "osx-64", "osx-arm64", "win-64"]
@@ -78,13 +81,15 @@ scipy = "*"
 benchmark = "TODO"
 
 [tool.pixi.feature.lint.dependencies]
-ruff = ">=0.15.0,<0.16"
+ruff = ">=0.15.17,<0.16"
+ty = ">=0.0.49,<0.0.50"
 
 [tool.pixi.feature.lint.tasks]
 pylint = "ruff check ec_tools"
 black = "ruff format ec_tools"
 isort = "ruff check --select I ec_tools"
-lint = { depends-on = ["pylint", "black", "isort"]  }
+ty = "ty check --python $CONDA_PREFIX ec_tools"
+lint = { depends-on = ["pylint", "black", "isort", "ty"]  }
 
 [tool.pixi.feature.doc.dependencies]
 jupytext = "*"
@@ -115,3 +120,7 @@ lint.ignore = [
 ]
 lint.fixable = ["E", "F", "W", "B"]
 line-length = 115
+
+[tool.ty.environment]
+# Check against the oldest supported interpreter (see requires-python).
+python-version = "3.10"

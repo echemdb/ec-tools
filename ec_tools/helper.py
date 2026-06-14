@@ -5,7 +5,7 @@ Loose collection of helper functions used in several places in the package.
 import numpy as np
 
 
-def find_x0_values(x, y, mode="all"):
+def find_x0_values(x: np.ndarray, y: np.ndarray, mode: str = "all") -> np.ndarray:
     """Takes x and y as numpy arrays and returns the ordered zero points by assuming linear behavior between
     the points.
     The mode determines if all or either positive or negative zero points should be returned.
@@ -55,7 +55,7 @@ def find_x0_values(x, y, mode="all"):
     return np.sort(np.concatenate([x[exact_crossings[1::2]], delta_x + x[non_exact_crossings]]))
 
 
-def determine_scan_rate(t, x):
+def determine_scan_rate(t: np.ndarray, x: np.ndarray) -> np.floating:
     """Return scan rate of given t and x arrays.
 
     TEST:
@@ -69,7 +69,7 @@ def determine_scan_rate(t, x):
     return np.abs(np.diff(x) / np.diff(t)).mean()
 
 
-def detect_step(t, x):
+def detect_step(t: np.ndarray, x: np.ndarray) -> np.intp:
     """Returns the index of the step in given t and x arrays.
     Index is the where the changed value of t located.
     TEST:

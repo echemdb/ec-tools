@@ -154,7 +154,14 @@ import numpy as np
 from transonic import jit
 
 
-def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_tol=1e-5):
+def semi_integration(
+    y: np.ndarray,
+    x: np.ndarray,
+    v: float = -0.5,
+    alg: str = "frlt",
+    transonic_backend: str = "pythran",
+    d_tol: float = 1e-5,
+) -> np.ndarray:
     r"""
     A generalized call is implemented, in which the user can define with ``v`` the operation i.e. semi integration
     (``v`` :math:`=-0.5`) or semi differentiation (``v`` :math:`=0.5`) for a predefined dataset (``y`` and ``t``).
@@ -271,8 +278,10 @@ def semi_integration(y, x, v=-0.5, alg="frlt", transonic_backend="pythran", d_to
 
             return riemann_pythran(y, delta_x, v)
 
+    raise AssertionError(f"unhandled alg/backend combination: {alg!r}/{transonic_backend!r}")
 
-def gruenwald(y, delta_x, v=-0.5):
+
+def gruenwald(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
     """
     Gruenwald Algorithm
     ^^^^^^^^^^^^^^^^^^^
@@ -331,7 +340,7 @@ def gruenwald(y, delta_x, v=-0.5):
     return g_1
 
 
-def riemann(y, delta_x, v=-0.5):
+def riemann(y: np.ndarray, delta_x: float, v: float = -0.5) -> np.ndarray:
     """
 
     Riemann Algorithm
@@ -399,7 +408,7 @@ def riemann(y, delta_x, v=-0.5):
     return r_1
 
 
-def fast_riemann(y, delta_x=1, q=-0.5, c1=8, c2=2):
+def fast_riemann(y: np.ndarray, delta_x: float = 1, q: float = -0.5, c1: int = 8, c2: int = 2) -> np.ndarray:
     r"""
 
     Fast Riemann Algorithm
