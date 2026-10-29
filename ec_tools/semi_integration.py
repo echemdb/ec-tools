@@ -151,7 +151,6 @@ Here, :math:`R` represents the calculated semi integral, i.e.
 """
 
 import warnings
-
 from typing import TYPE_CHECKING
 
 import numpy as np
